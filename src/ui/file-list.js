@@ -1,6 +1,6 @@
 import { formatBytes, calcSavedPercent } from '../utils/bytes.js';
 import { escapeHtml } from '../utils/dom.js';
-import { outputNameFor, downloadBlob } from '../utils/download.js';
+import { outputNameFor, downloadBlob } from './download.js';
 import { openCropModal } from './crop-modal.js';
 
 export function initFileList(root, store, pipeline) {

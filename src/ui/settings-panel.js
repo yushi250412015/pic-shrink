@@ -1,5 +1,5 @@
 import { SIZE_PRESETS, ROTATIONS, FLIPS, WATERMARK_POSITIONS } from '../config.js';
-import { detectEncodableFormats } from '../utils/image.js';
+import { detectEncodableFormats } from './capabilities.js';
 
 const SELECT_SOURCES = {
   preset: SIZE_PRESETS,

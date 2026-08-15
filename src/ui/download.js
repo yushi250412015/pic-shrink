@@ -1,4 +1,4 @@
-import { renderOutputName, makeUnique } from './filename.js';
+import { renderOutputName, makeUnique } from '../utils/filename.js';
 
 /** 触发浏览器下载（object URL 延迟回收） */
 export function triggerDownload(url, filename) {

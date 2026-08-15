@@ -1,4 +1,4 @@
-import { downloadAllAsZip } from '../utils/download.js';
+import { downloadAllAsZip } from './download.js';
 
 export function initToolbar(root, store) {
   const downloadAll = root.querySelector('[data-download-all]');

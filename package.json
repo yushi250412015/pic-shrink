@@ -1,0 +1,23 @@
+{
+  "name": "pic-shrink",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "轻图 Pic Shrink：纯本地运行的图片压缩/格式转换/尺寸缩放工具箱，图片永不上传服务器",
+  "keywords": ["image", "compression", "convert", "privacy", "tool", "offline"],
+  "license": "MIT",
+  "author": "yushi250412015",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>轻图 Pic Shrink · 本地图片压缩工具箱</title>
+    <meta
+      name="description"
+      content="纯本地运行的图片压缩与格式转换工具：支持批量、质量调节、尺寸缩放与 JPG/PNG/WebP 转换，图片永不上传服务器。"
+    />
+    <meta name="theme-color" content="#4f46e5" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%97%9C%EF%B8%8F%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="site-header">
+        <div class="brand">
+          <span class="logo" aria-hidden="true">🗜️</span>
+          <div>
+            <h1>轻图 <span class="brand-en">Pic Shrink</span></h1>
+            <p class="tagline">本地图片压缩 · 格式转换 · 尺寸缩放</p>
+          </div>
+        </div>
+        <span class="privacy-badge" title="所有处理都在你的浏览器中完成，图片不会上传到任何服务器"
+          >🔒 图片不出本地</span
+        >
+      </header>
+
+      <main>
+        <section id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="选择或拖入图片">
+          <input id="file-input" type="file" accept="image/*" multiple hidden />
+          <div class="dz-icon" aria-hidden="true">🖼️</div>
+          <p class="dz-title">把图片拖到这里，或点击选择</p>
+          <p class="dz-sub">支持 JPG / PNG / WebP / GIF / BMP / AVIF · 可多选批量 · 也支持 Ctrl+V 粘贴</p>
+        </section>
+
+        <section class="settings panel" aria-label="压缩设置">
+          <div class="panel-title">⚙️ 压缩设置</div>
+          <div class="settings-grid">
+            <label class="field">
+              <span class="field-label">输出格式</span>
+              <select id="format">
+                <option value="auto">保持原格式</option>
+                <option value="jpeg">JPEG</option>
+                <option value="png">PNG</option>
+                <option value="webp">WebP</option>
+              </select>
+            </label>
+            <label class="field">
+              <span class="field-label">质量：<b id="quality-value">80%</b></span>
+              <input id="quality" type="range" min="10" max="100" step="1" value="80" />
+              <small class="field-note">仅对 JPEG / WebP 生效</small>
+            </label>
+            <label class="field">
+              <span class="field-label">尺寸缩放</span>
+              <select id="scale-mode">
+                <option value="none">不缩放</option>
+                <option value="longest" selected>最长边限制</option>
+                <option value="percent">按百分比缩放</option>
+              </select>
+            </label>
+            <label class="field" id="scale-value-field">
+              <span class="field-label">最长边（像素）</span>
+              <input id="scale-value" type="number" min="1" max="20000" value="1920" />
+            </label>
+          </div>
+          <button id="rerun" class="btn btn-ghost" hidden type="button">🔄 按新设置重新压缩全部</button>
+        </section>
+
+        <section id="stats" class="stats panel" hidden>
+          <div class="panel-title">📊 总体情况</div>
+          <div id="stats-body" class="stats-grid"></div>
+        </section>
+
+        <section class="list-wrap">
+          <div id="empty-state" class="empty-state">还没有图片，从上面拖几张进来试试 👆</div>
+          <ul id="file-list" class="file-list"></ul>
+        </section>
+
+        <section class="actions">
+          <button id="download-all" class="btn btn-primary btn-big" hidden type="button">⬇ 全部下载（ZIP）</button>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>完全在浏览器本地运行，不上传任何数据 · 开源免费（MIT）</p>
+        <p>
+          <a href="https://github.com/yushi250412015/pic-shrink" target="_blank" rel="noopener noreferrer"
+            >GitHub 仓库</a
+          >
+        </p>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

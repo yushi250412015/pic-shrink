@@ -1,9 +1,9 @@
 {
   "name": "pic-shrink",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "轻图 Pic Shrink：纯本地运行的图片压缩/格式转换/尺寸缩放工具箱，支持目标大小压缩与 JPG/PNG/WebP/AVIF，图片永不上传服务器",
+  "description": "轻图 Pic Shrink：纯本地运行的图片 / PDF / GIF 处理工具箱，支持压缩、格式转换、尺寸缩放、水印、裁剪，文件永不上传服务器",
   "keywords": [
     "image",
     "compression",

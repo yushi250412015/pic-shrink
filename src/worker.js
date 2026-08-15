@@ -1,5 +1,5 @@
-// Web Worker 入口：接收压缩任务，把结果（或错误）发回主线程
-import { compressImage } from './compress.js';
+// Web Worker 入口：接收压缩任务，把结果或错误发回主线程
+import { compressImage } from './compression.js';
 
 self.onmessage = async (event) => {
   const { id, file, settings } = event.data;

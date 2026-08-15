@@ -1,103 +1,104 @@
-# 🗜️ 轻图 · Pic Shrink
+# 轻图 · Pic Shrink
 
-**本地图片压缩 / 格式转换 / 尺寸缩放工具箱** —— 图片**永不上传服务器**，全部在你的浏览器里完成。
+纯本地运行的图片压缩与格式转换工具。所有处理都在浏览器内完成，图片不会上传到任何服务器。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Deploy to Pages](https://github.com/yushi250412015/pic-shrink/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/yushi250412015/pic-shrink/actions/workflows/deploy-pages.yml)
+[![Deploy](https://github.com/yushi250412015/pic-shrink/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/yushi250412015/pic-shrink/actions/workflows/deploy-pages.yml)
 
-🔗 在线使用：<https://yushi250412015.github.io/pic-shrink/>
+在线使用：<https://yushi250412015.github.io/pic-shrink/>
 
-> A privacy-first image compression toolbox that runs 100% locally in your browser.
-> Batch compress, resize, and convert between JPG / PNG / WebP — nothing is ever uploaded.
+> A privacy-first image toolbox that runs entirely in your browser. Batch-compress, resize, rotate and convert images between JPEG / PNG / WebP / AVIF — nothing is uploaded.
 
-## ✨ 功能特性
+## 功能
 
-- 🖼️ **批量压缩**：拖入 / 粘贴 / 选择多张图片，逐张显示「压缩后大小 + 节省比例」
-- 🎚️ **质量调节**：JPEG / WebP 质量 10%–100%，改完设置一键重新压缩
-- 📐 **尺寸缩放**：不缩放 / 最长边限制（像素）/ 按百分比
-- 🔁 **格式转换**：保持原格式 / JPEG / PNG / WebP（GIF 保持原样，动画不丢失）
-- 📦 **一键打包**：全部结果打包成 ZIP 下载（同名文件自动加序号去重）
-- 🔍 **按住对比**：卡片预览图上按住即可对比原图与压缩效果
-- 🔒 **隐私优先**：Canvas + OffscreenCanvas + Web Worker 全本地处理，零上传、零后端、断网可用
-- 🌓 深色模式自动适配
+- **批量处理**：拖拽、点击或粘贴多张图片，多 Worker 并行处理
+- **格式转换**：JPEG / PNG / WebP / AVIF，或保持原格式（GIF 原样保留动画）
+- **两种压缩策略**：按质量（10%–100%），或按目标大小自动寻找最接近的质量
+- **尺寸调整**：不缩放 / 常用预设（1280 / 1920 / 2560 / 3840）/ 最长边限制 / 百分比
+- **几何变换**：90° / 180° / 270° 旋转、水平 / 垂直翻转、居中裁剪为正方形
+- **JPEG 背景填充**：转 JPEG 时自定义透明区域的填充色
+- **输出重命名**：自定义文件名前缀与后缀，打包时同名自动去重
+- **逐张对比**：按住预览图即可对比原图与转换结果
+- **一键打包**：所有结果打包为 ZIP 下载
+- **隐私优先**：Canvas + OffscreenCanvas 全本地处理，零上传、零后端、断网可用
 
-## ❓ 为什么值得用
-
-市面上的在线压缩工具会把图片上传到服务器，照片内容有泄露风险；本项目完全在本地浏览器中处理，速度更快、隐私更安全，代码完全开源可审计。
-
-## 🚀 快速开始
+## 快速开始
 
 ```bash
-npm install      # 安装依赖
-npm run dev      # 本地开发（http://localhost:5173）
+npm install
+npm run dev      # 开发模式（http://localhost:5173）
 npm test         # 运行单元测试
 npm run build    # 构建产物到 dist/
-npm run preview  # 本地预览构建产物
+npm run preview  # 预览构建产物
 ```
 
-## 🛠 技术栈
+## 技术栈
 
 | 层 | 选型 |
 |---|---|
-| 构建工具 | Vite |
-| 语言 | 原生 JavaScript（ES Modules，无框架，容易阅读） |
-| 图像处理 | `createImageBitmap` + `OffscreenCanvas`（跑在 Web Worker 里，不卡界面） |
-| 打包下载 | JSZip |
+| 构建 | Vite |
+| 语言 | 原生 JavaScript（ES Modules，无框架） |
+| 图像处理 | createImageBitmap + OffscreenCanvas（Web Worker） |
+| 打包下载 | JSZip（按需动态加载） |
 | 测试 | Vitest |
-| 部署 | GitHub Pages（GitHub Actions 推送到 `main` 自动构建部署） |
+| 部署 | GitHub Pages + GitHub Actions |
 
-## 📁 项目结构
+## 项目结构
 
 ```
 pic-shrink/
-├── index.html                  # 页面结构
+├── index.html                # 页面结构
 ├── src/
-│   ├── main.js                 # UI 逻辑：拖拽、Worker 池调度、卡片渲染、统计与下载
-│   ├── worker.js               # Web Worker 入口
-│   ├── compress.js             # 核心压缩逻辑（在 Worker 中运行）
-│   ├── format.js               # 纯函数工具（字节格式化、换算、命名）
-│   └── style.css               # 样式（含深色模式与响应式）
-├── test/
-│   └── format.test.js          # 单元测试
-├── .github/workflows/
-│   └── deploy-pages.yml        # 推送到 main 自动部署 GitHub Pages
-└── LICENSE                     # MIT
+│   ├── main.js               # 入口：装配 store 与各 UI 模块
+│   ├── config.js             # 常量、默认设置与预设
+│   ├── store.js              # 应用状态管理
+│   ├── pipeline.js           # Worker 池与任务调度
+│   ├── compression.js        # 压缩/转换核心（Worker 内运行）
+│   ├── worker.js             # Worker 入口
+│   ├── ui/                   # 界面模块（上传区、设置面板、列表、统计、操作栏）
+│   └── utils/                # 纯函数工具（字节、文件名、几何、质量搜索等）
+├── test/                     # 单元测试
+├── .github/workflows/        # 自动部署
+└── LICENSE
 ```
 
-## 📖 使用说明
+## 部署到 GitHub Pages
 
-1. 打开页面，拖入图片（或点击选择 / 直接 Ctrl+V 粘贴），支持批量
-2. 在上方「压缩设置」中调整输出格式、质量与尺寸
-3. 每张图片卡片会显示原大小、新大小、节省比例；按住预览图可对比原图
-4. 单张下载，或点击「全部下载（ZIP）」一键打包
-5. 修改设置后点击「按新设置重新压缩全部」即可批量重压
+仓库内置 GitHub Actions 工作流，推送到 `main` 后自动「安装依赖 → 测试 → 构建 → 部署」：
 
-> 提示：转 JPEG 时透明区域会自动填充白色；GIF 在「保持原格式」下不会被重编码（保留动画）。
+1. 在仓库 **Settings → Pages** 中，将 Source 设为 **GitHub Actions**
+2. 推送代码后，Actions 会自动构建并部署
+3. 完成后即可访问 `https://<用户名>.github.io/pic-shrink/`
 
-## 📤 部署到 GitHub Pages（免费）
+## 使用说明
 
-仓库已内置 GitHub Actions 工作流（`.github/workflows/deploy-pages.yml`），推送后自动完成「安装依赖 → 跑测试 → 构建 → 部署」：
+1. 拖入 / 选择 / 粘贴图片，支持多选
+2. 在「转换设置」中调整格式、压缩方式、尺寸、旋转等
+3. 每张卡片显示原大小、新大小、尺寸与格式；按住预览图可对比原图
+4. 单张下载，或「下载全部（ZIP）」一键打包
+5. 修改设置后点击「按新设置重新转换全部」批量重压
 
-1. 把代码推到 GitHub 上的仓库
-2. 打开仓库 **Settings → Pages**，把 **Build and deployment → Source** 改成 **GitHub Actions**
-3. 首次推送会自动触发构建；也可以在 **Actions** 页手动点 **Run workflow** 重跑
-4. 部署完成后即可访问 `https://<你的用户名>.github.io/pic-shrink/`
+> 转 JPEG 时透明区域会使用设置的背景色填充；GIF 在「保持原格式」下不重编码、保留动画。
 
-> 由于 `vite.config.js` 中设置了 `base: './'`，构建产物使用相对路径，部署到任何子路径都不会资源 404。
+## 常见问题
 
-## 🗺️ Roadmap
+**图片会传到服务器吗？**
+不会。所有处理都在浏览器本地完成，代码完全开源可审计，断网也能使用。
 
-- [ ] PWA：可安装到桌面 / 手机，完全离线使用
-- [ ] 输出 AVIF 格式
-- [ ] 图片裁剪与旋转
-- [ ] 批量重命名规则
-- [ ] 英文界面（i18n）
+**支持哪些输入格式？**
+JPG / PNG / WebP / GIF / BMP / AVIF / SVG（取决于浏览器解码能力）。
+
+**目标大小压缩对 PNG 有效吗？**
+PNG 是无损格式，无法通过质量参数压缩；目标大小策略仅对 JPEG / WebP / AVIF 生效。
+
+## 路线图
+
+- [ ] PWA 离线安装
+- [ ] 自定义区域裁剪与更多尺寸预设
+- [ ] 文字水印
+- [ ] 多语言界面
 - [ ] 扫描件增强（灰度、去阴影）
 
-## 🤝 参与贡献
-
-这是我作为大二学生用 AI 辅助编程（vibe coding）完成的学习项目，欢迎任何形式的贡献：提 Issue、发 PR，或者只是点一个 Star ⭐ 都很有帮助。
-
-## 📄 License
+## License
 
 [MIT](LICENSE) © yushi250412015

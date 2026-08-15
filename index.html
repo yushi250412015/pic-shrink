@@ -6,7 +6,7 @@
     <title>轻图 Pic Shrink · 本地图片压缩工具箱</title>
     <meta
       name="description"
-      content="纯本地运行的图片压缩与格式转换工具：支持批量、质量调节、尺寸缩放与 JPG/PNG/WebP 转换，图片永不上传服务器。"
+      content="纯本地运行的图片压缩与格式转换工具：批量压缩、目标大小压缩、JPG/PNG/WebP/AVIF 转换、旋转翻转、尺寸缩放，图片永不上传服务器。"
     />
     <meta name="theme-color" content="#4f46e5" />
     <link
@@ -32,57 +32,119 @@
 
       <main>
         <section id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="选择或拖入图片">
-          <input id="file-input" type="file" accept="image/*" multiple hidden />
+          <input data-file-input type="file" accept="image/*" multiple hidden />
           <div class="dz-icon" aria-hidden="true">🖼️</div>
           <p class="dz-title">把图片拖到这里，或点击选择</p>
           <p class="dz-sub">支持 JPG / PNG / WebP / GIF / BMP / AVIF · 可多选批量 · 也支持 Ctrl+V 粘贴</p>
         </section>
 
-        <section class="settings panel" aria-label="压缩设置">
-          <div class="panel-title">⚙️ 压缩设置</div>
+        <section id="settings-panel" class="settings panel" aria-label="转换设置">
+          <div class="panel-title">转换设置</div>
           <div class="settings-grid">
             <label class="field">
               <span class="field-label">输出格式</span>
-              <select id="format">
+              <select data-setting="format">
                 <option value="auto">保持原格式</option>
                 <option value="jpeg">JPEG</option>
                 <option value="png">PNG</option>
                 <option value="webp">WebP</option>
+                <option value="avif">AVIF</option>
               </select>
             </label>
-            <label class="field">
-              <span class="field-label">质量：<b id="quality-value">80%</b></span>
-              <input id="quality" type="range" min="10" max="100" step="1" value="80" />
-              <small class="field-note">仅对 JPEG / WebP 生效</small>
-            </label>
+
+            <div class="field field-wide">
+              <span class="field-label">压缩方式</span>
+              <div class="segmented">
+                <label class="seg-item">
+                  <input type="radio" name="strategy" value="quality" data-setting="strategy" />
+                  <span>按质量</span>
+                </label>
+                <label class="seg-item">
+                  <input type="radio" name="strategy" value="target-size" data-setting="strategy" />
+                  <span>按目标大小</span>
+                </label>
+              </div>
+              <div class="strategy-row" data-strategy="quality">
+                <input type="range" min="10" max="100" step="1" value="80" data-setting="quality" />
+                <b data-quality-label>80%</b>
+              </div>
+              <div class="strategy-row hidden" data-strategy="target-size">
+                <input type="number" min="1" value="200" data-setting="targetKb" />
+                <span class="field-note">KB 以内（JPEG / WebP / AVIF）</span>
+              </div>
+            </div>
+
             <label class="field">
               <span class="field-label">尺寸缩放</span>
-              <select id="scale-mode">
+              <select data-setting="resizeMode">
                 <option value="none">不缩放</option>
-                <option value="longest" selected>最长边限制</option>
-                <option value="percent">按百分比缩放</option>
+                <option value="preset">常用预设</option>
+                <option value="longest">最长边限制</option>
+                <option value="percent">按百分比</option>
               </select>
             </label>
-            <label class="field" id="scale-value-field">
+
+            <label class="field hidden" data-resize-field="preset">
+              <span class="field-label">预设尺寸</span>
+              <select data-setting="preset"></select>
+            </label>
+            <label class="field hidden" data-resize-field="longest">
               <span class="field-label">最长边（像素）</span>
-              <input id="scale-value" type="number" min="1" max="20000" value="1920" />
+              <input type="number" min="1" max="20000" value="1920" data-setting="longestEdge" />
+            </label>
+            <label class="field hidden" data-resize-field="percent">
+              <span class="field-label">缩放比例（%）</span>
+              <input type="number" min="1" max="1000" value="50" data-setting="percent" />
+            </label>
+
+            <label class="field">
+              <span class="field-label">旋转</span>
+              <select data-setting="rotate"></select>
+            </label>
+            <label class="field">
+              <span class="field-label">翻转</span>
+              <select data-setting="flip"></select>
+            </label>
+
+            <label class="field">
+              <span class="field-label">裁剪</span>
+              <label class="checkbox">
+                <input type="checkbox" data-setting="squareCrop" />
+                <span>居中裁剪为正方形</span>
+              </label>
+            </label>
+
+            <label class="field">
+              <span class="field-label">JPEG 背景填充</span>
+              <input type="color" value="#ffffff" data-setting="background" />
+              <small class="field-note">转 JPEG 时透明区域的填充色</small>
+            </label>
+
+            <label class="field">
+              <span class="field-label">输出文件名前缀</span>
+              <input type="text" placeholder="例如 pic_" data-setting="prefix" />
+            </label>
+            <label class="field">
+              <span class="field-label">输出文件名后缀</span>
+              <input type="text" placeholder="例如 _compressed" data-setting="suffix" />
             </label>
           </div>
-          <button id="rerun" class="btn btn-ghost" hidden type="button">🔄 按新设置重新压缩全部</button>
+          <button data-rerun class="btn btn-ghost" hidden type="button">按新设置重新转换全部</button>
         </section>
 
         <section id="stats" class="stats panel" hidden>
-          <div class="panel-title">📊 总体情况</div>
-          <div id="stats-body" class="stats-grid"></div>
+          <div class="panel-title">总体情况</div>
+          <div data-stats-body class="stats-grid"></div>
         </section>
 
-        <section class="list-wrap">
-          <div id="empty-state" class="empty-state">还没有图片，从上面拖几张进来试试 👆</div>
-          <ul id="file-list" class="file-list"></ul>
+        <section id="list-section">
+          <div data-empty-state class="empty-state">还没有图片，从上面拖几张进来试试</div>
+          <ul data-file-list class="file-list"></ul>
         </section>
 
-        <section class="actions">
-          <button id="download-all" class="btn btn-primary btn-big" hidden type="button">⬇ 全部下载（ZIP）</button>
+        <section id="toolbar" class="actions">
+          <button data-download-all class="btn btn-primary btn-big" hidden type="button">下载全部（ZIP）</button>
+          <button data-clear class="btn btn-ghost" hidden type="button">清空列表</button>
         </section>
       </main>
 

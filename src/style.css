@@ -1,4 +1,4 @@
-/* ================= 基础与主题变量 ================= */
+/* ================= 基础与主题 ================= */
 
 :root {
   --bg: #f4f6fa;
@@ -67,7 +67,7 @@ body {
 }
 
 .container {
-  max-width: 920px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 28px 20px 64px;
 }
@@ -166,7 +166,7 @@ input {
   outline: none;
 }
 
-.drop-zone.dragover {
+.drop-zone.is-dragover {
   border-color: var(--accent);
   background: var(--accent-soft);
   transform: scale(1.005);
@@ -206,11 +206,11 @@ input {
   margin-bottom: 14px;
 }
 
-/* ================= 设置 ================= */
+/* ================= 设置面板 ================= */
 
 .settings-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
 }
 
@@ -220,17 +220,18 @@ input {
   gap: 8px;
 }
 
+.field-wide {
+  grid-column: 1 / -1;
+}
+
 .field-label {
   font-size: 13px;
   color: var(--text-2);
 }
 
-.field-label b {
-  color: var(--text);
-}
-
 .field select,
-.field input[type='number'] {
+.field input[type='number'],
+.field input[type='text'] {
   padding: 9px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -238,7 +239,7 @@ input {
 }
 
 .field select:focus,
-.field input[type='number']:focus {
+.field input:focus {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
@@ -248,12 +249,85 @@ input {
   margin: 6px 0 0;
 }
 
+.field input[type='color'] {
+  width: 100%;
+  height: 38px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  cursor: pointer;
+}
+
 .field-note {
   color: var(--text-2);
   font-size: 12px;
 }
 
-#rerun {
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.seg-item {
+  position: relative;
+}
+
+.seg-item input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.seg-item span {
+  display: block;
+  padding: 8px 18px;
+  cursor: pointer;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.seg-item input:checked + span {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.strategy-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.strategy-row input[type='range'] {
+  flex: 1;
+}
+
+.strategy-row input[type='number'] {
+  width: 96px;
+}
+
+.strategy-row b {
+  min-width: 40px;
+  text-align: right;
+  font-size: 14px;
+}
+
+.checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.checkbox input {
+  accent-color: var(--accent);
+}
+
+#settings-panel .btn-ghost {
   margin-top: 14px;
 }
 
@@ -333,10 +407,6 @@ input {
 
 /* ================= 文件列表 ================= */
 
-.list-wrap {
-  margin-top: 20px;
-}
-
 .empty-state {
   color: var(--text-2);
   text-align: center;
@@ -346,7 +416,7 @@ input {
 
 .file-list {
   list-style: none;
-  margin: 0;
+  margin: 20px 0 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -364,7 +434,7 @@ input {
   gap: 12px;
 }
 
-.file-item.comparing {
+.file-item.is-comparing {
   border-color: var(--accent);
 }
 
@@ -497,11 +567,13 @@ input {
   font-size: 13px;
 }
 
-/* ================= 底部 ================= */
+/* ================= 操作栏与页脚 ================= */
 
 .actions {
-  margin-top: 18px;
-  text-align: center;
+  margin-top: 20px;
+  display: flex;
+  gap: 12px;
+  justify-content: center;
 }
 
 .site-footer {

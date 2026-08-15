@@ -4,7 +4,14 @@
   "private": true,
   "type": "module",
   "description": "轻图 Pic Shrink：纯本地运行的图片压缩/格式转换/尺寸缩放工具箱，支持目标大小压缩与 JPG/PNG/WebP/AVIF，图片永不上传服务器",
-  "keywords": ["image", "compression", "convert", "privacy", "tool", "offline"],
+  "keywords": [
+    "image",
+    "compression",
+    "convert",
+    "privacy",
+    "tool",
+    "offline"
+  ],
   "license": "MIT",
   "author": "yushi250412015",
   "scripts": {
@@ -14,7 +21,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "jszip": "^3.10.1"
+    "jszip": "^3.10.1",
+    "pdf-lib": "^1.17.1"
   },
   "devDependencies": {
     "vite": "^6.3.5",

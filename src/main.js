@@ -6,6 +6,7 @@ import { initSettingsPanel } from './ui/settings-panel.js';
 import { initFileList } from './ui/file-list.js';
 import { initStatsBar } from './ui/stats-bar.js';
 import { initToolbar } from './ui/toolbar.js';
+import { initPdfTool } from './ui/pdf-tool.js';
 
 const store = createStore(DEFAULT_SETTINGS);
 const pipeline = new Pipeline(store);
@@ -21,3 +22,19 @@ initSettingsPanel(document.getElementById('settings-panel'), store, () => pipeli
 initFileList(document.getElementById('list-section'), store, pipeline);
 initStatsBar(document.getElementById('stats'), store);
 initToolbar(document.getElementById('toolbar'), store);
+
+// PDF 工具
+initPdfTool(document.getElementById('pdf-app'));
+
+// 模式切换
+const modeButtons = [...document.querySelectorAll('[data-mode]')];
+const imageApp = document.getElementById('image-app');
+const pdfApp = document.getElementById('pdf-app');
+for (const button of modeButtons) {
+  button.addEventListener('click', () => {
+    const mode = button.dataset.mode;
+    imageApp.hidden = mode !== 'image';
+    pdfApp.hidden = mode !== 'pdf';
+    for (const b of modeButtons) b.classList.toggle('active', b === button);
+  });
+}

@@ -30,7 +30,13 @@
         >
       </header>
 
+      <div class="mode-switch" role="tablist" aria-label="工具切换">
+        <button class="active" data-mode="image" type="button">图片工具</button>
+        <button data-mode="pdf" type="button">PDF 工具</button>
+      </div>
+
       <main>
+        <div id="image-app">
         <section id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="选择或拖入图片">
           <input data-file-input type="file" accept="image/*" multiple hidden />
           <div class="dz-icon" aria-hidden="true">🖼️</div>
@@ -174,6 +180,32 @@
           <button data-download-all class="btn btn-primary btn-big" hidden type="button">下载全部（ZIP）</button>
           <button data-clear class="btn btn-ghost" hidden type="button">清空列表</button>
         </section>
+        </div>
+
+        <div id="pdf-app" hidden>
+          <section class="drop-zone" data-pdf-dropzone tabindex="0" role="button" aria-label="选择或拖入 PDF">
+            <input data-pdf-input type="file" accept="application/pdf" multiple hidden />
+            <div class="dz-icon" aria-hidden="true">📄</div>
+            <p class="dz-title">把 PDF 拖到这里，或点击选择</p>
+            <p class="dz-sub">可多选 · 支持合并 / 拆分 / 提取页 / 优化压缩</p>
+          </section>
+
+          <section class="panel">
+            <div class="panel-title">PDF 操作</div>
+            <div class="pdf-tools">
+              <button class="btn btn-primary" data-pdf-action="merge" type="button">合并全部</button>
+              <button class="btn btn-ghost" data-pdf-action="split" type="button">拆分每页</button>
+              <input class="pdf-range" data-pdf-range type="text" placeholder="提取页范围，如 1-3,5" />
+              <button class="btn btn-ghost" data-pdf-action="extract" type="button">提取所选页</button>
+              <button class="btn btn-ghost" data-pdf-action="optimize" type="button">优化压缩</button>
+            </div>
+            <small class="field-note">所有操作都在浏览器本地完成，PDF 不会上传到服务器</small>
+          </section>
+
+          <div data-pdf-empty class="empty-state">还没有 PDF，从上面拖几个进来试试</div>
+          <ul data-pdf-list class="file-list"></ul>
+          <div class="pdf-status" data-pdf-status hidden></div>
+        </div>
       </main>
 
       <footer class="site-footer">

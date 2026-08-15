@@ -1,28 +1,28 @@
 # 轻图 · Pic Shrink
 
-纯本地运行的图片压缩与格式转换工具。所有处理都在浏览器内完成，图片不会上传到任何服务器。
+纯本地运行的图片 / PDF / GIF 处理工具。所有处理都在浏览器内完成，文件不会上传到任何服务器。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Deploy](https://github.com/yushi250412015/pic-shrink/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/yushi250412015/pic-shrink/actions/workflows/deploy-pages.yml)
 
 在线使用：<https://yushi250412015.github.io/pic-shrink/>
 
-> A privacy-first image toolbox that runs entirely in your browser. Batch-compress, resize, rotate and convert images between JPEG / PNG / WebP / AVIF — nothing is uploaded.
+> A privacy-first image / PDF / GIF toolbox that runs entirely in your browser. Batch-compress, convert, crop, watermark and resize images, merge or split PDFs, and optimize GIFs — nothing is uploaded. Available in English and Chinese.
 
 ## 功能
 
-- **批量处理**：拖拽、点击或粘贴多张图片，多 Worker 并行处理
-- **格式转换**：JPEG / PNG / WebP / AVIF，或保持原格式（GIF 原样保留动画）
+- **图片批量压缩**：拖拽 / 粘贴 / 多选，多 Worker 并行处理，逐张显示节省比例
+- **格式转换**：JPEG / PNG / WebP / AVIF，或保持原格式
 - **两种压缩策略**：按质量（10%–100%），或按目标大小自动寻找最接近的质量
-- **尺寸调整**：不缩放 / 常用预设（1280 / 1920 / 2560 / 3840）/ 最长边限制 / 百分比
-- **几何变换**：90° / 180° / 270° 旋转、水平 / 垂直翻转、居中裁剪为正方形
-- **自定义区域裁剪**：交互式框选任意区域，四角可拖拽调整，支持清除
+- **尺寸调整**：不缩放 / 常用预设（1280 / 1920 / 2560 / 3840）/ 最长边限制 / 百分比 / **场景预设**（微信头像、公众号封面、小红书、淘宝主图、证件照等一键出图）
+- **几何变换**：90° / 180° / 270° 旋转、水平 / 垂直翻转、居中裁剪为正方形、**自定义区域裁剪**（交互式框选）
 - **文字水印**：九宫格位置、字号、颜色、不透明度可调
-- **JPEG 背景填充**：转 JPEG 时自定义透明区域的填充色
-- **输出重命名**：自定义文件名前缀与后缀，打包时同名自动去重
-- **逐张对比**：按住预览图即可对比原图与转换结果
-- **一键打包**：所有结果打包为 ZIP 下载
-- **隐私优先**：Canvas + OffscreenCanvas 全本地处理，零上传、零后端、断网可用
+- **GIF 处理**：压缩、缩放、裁剪，保留动画帧
+- **PDF 工具**：合并、拆分每页、按页码范围提取、优化压缩
+- **EXIF 查看与清除**：读取相机 / 日期 / GPS 定位，转换后自动清除并给出隐私提示
+- **输出重命名**：前缀 / 后缀；多结果自动打包 ZIP
+- **中英双语**：界面可切换
+- **隐私优先**：Canvas / OffscreenCanvas / pdf-lib / gifsicle-wasm 全本地处理，零上传、零后端
 
 ## 快速开始
 
@@ -41,7 +41,10 @@ npm run preview  # 预览构建产物
 | 构建 | Vite |
 | 语言 | 原生 JavaScript（ES Modules，无框架） |
 | 图像处理 | createImageBitmap + OffscreenCanvas（Web Worker） |
-| 打包下载 | JSZip（按需动态加载） |
+| PDF | pdf-lib（按需分包） |
+| GIF | gifsicle-wasm（自包含，打进图片 Worker） |
+| EXIF | exifr（按需分包） |
+| 打包下载 | JSZip（按需分包） |
 | 测试 | Vitest |
 | 部署 | GitHub Pages + GitHub Actions |
 
@@ -51,14 +54,17 @@ npm run preview  # 预览构建产物
 pic-shrink/
 ├── index.html                # 页面结构
 ├── src/
-│   ├── main.js               # 入口：装配 store 与各 UI 模块
+│   ├── main.js               # 入口：装配各模块
 │   ├── config.js             # 常量、默认设置与预设
 │   ├── store.js              # 应用状态管理
-│   ├── pipeline.js           # Worker 池与任务调度
-│   ├── compression.js        # 压缩/转换核心（Worker 内运行）
-│   ├── worker.js             # Worker 入口
-│   ├── ui/                   # 界面模块（上传区、设置面板、列表、统计、操作栏）
-│   └── utils/                # 纯函数工具（字节、文件名、几何、质量搜索等）
+│   ├── pipeline.js           # 图片 Worker 池与任务调度
+│   ├── compression.js        # 图片/水印/GIF 压缩核心（Worker 内运行）
+│   ├── worker.js             # 图片 Worker 入口
+│   ├── pdf-core.js           # PDF 处理核心（Worker 内运行）
+│   ├── pdf-worker.js         # PDF Worker 入口
+│   ├── exif.js               # EXIF 读取
+│   ├── ui/                   # 界面模块（i18n、上传、设置、列表、统计、裁剪、PDF、下载等）
+│   └── utils/                # 纯函数工具（字节、文件名、几何、质量搜索、页码范围等）
 ├── test/                     # 单元测试
 ├── ARCHITECTURE.md           # 架构与开发规范
 ├── .github/workflows/        # 自动部署
@@ -75,31 +81,31 @@ pic-shrink/
 
 ## 使用说明
 
-1. 拖入 / 选择 / 粘贴图片，支持多选
-2. 在「转换设置」中调整格式、压缩方式、尺寸、旋转等
-3. 每张卡片显示原大小、新大小、尺寸与格式；按住预览图可对比原图
-4. 单张下载，或「下载全部（ZIP）」一键打包
-5. 修改设置后点击「按新设置重新转换全部」批量重压
-
-> 转 JPEG 时透明区域会使用设置的背景色填充；GIF 在「保持原格式」下不重编码、保留动画。
+1. 顶部切换「图片工具」或「PDF 工具」
+2. 拖入 / 选择 / 粘贴文件，支持多选
+3. 在「转换设置」中调整格式、压缩方式、尺寸、旋转、水印等
+4. 每张卡片显示原大小、新大小、尺寸与格式；按住预览图可对比原图；点「裁剪」可框选区域
+5. 单张下载，或「下载全部（ZIP）」一键打包
 
 ## 常见问题
 
-**图片会传到服务器吗？**
+**文件会传到服务器吗？**
 不会。所有处理都在浏览器本地完成，代码完全开源可审计，断网也能使用。
 
 **支持哪些输入格式？**
-JPG / PNG / WebP / GIF / BMP / AVIF / SVG（取决于浏览器解码能力）。
+图片：JPG / PNG / WebP / GIF / BMP / AVIF / SVG（取决于浏览器解码能力）；PDF 工具支持 PDF。
 
 **目标大小压缩对 PNG 有效吗？**
 PNG 是无损格式，无法通过质量参数压缩；目标大小策略仅对 JPEG / WebP / AVIF 生效。
 
+**GIF 会丢失动画吗？**
+保持 GIF 格式输出时使用 gifsicle 处理，动画帧会保留；转换为 JPG / PNG / WebP 时输出首帧静态图。
+
 ## 路线图
 
 - [ ] PWA 离线安装
-- [ ] 自定义区域裁剪与更多尺寸预设
-- [ ] 文字水印
-- [ ] 多语言界面
+- [ ] 图片拼接 / 长图
+- [ ] 更强大的批量重命名规则
 - [ ] 扫描件增强（灰度、去阴影）
 
 ## License

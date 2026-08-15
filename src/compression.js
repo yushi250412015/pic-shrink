@@ -2,8 +2,9 @@
 // 运行在 Web Worker 中，全程本地处理。
 
 import { resolveFormat, mimeFromFormat, isLosslessFormat } from './utils/image.js';
-import { computeTargetSize, rotatedSize, squareCropRect } from './utils/geometry.js';
+import { clamp, computeTargetSize, rotatedSize, squareCropRect } from './utils/geometry.js';
 import { findQualityForSize } from './utils/quality.js';
+import { computeWatermarkPosition } from './utils/watermark.js';
 
 function resolveResize(settings) {
   const { resizeMode } = settings;
@@ -34,6 +35,27 @@ function drawSource(ctx, canvasSize, targetSize, bitmap, crop, rotate, flip) {
   ctx.translate(-dw / 2, -dh / 2);
 
   ctx.drawImage(bitmap, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, dw, dh);
+  ctx.restore();
+}
+
+function drawWatermark(ctx, width, height, settings) {
+  const text = (settings.watermarkText || '').trim();
+  if (!text) return;
+
+  const shorter = Math.min(width, height);
+  const fontSize = Math.max(8, Math.round((shorter * (Number(settings.watermarkSize) || 0)) / 100));
+  const { x, y } = computeWatermarkPosition(settings.watermarkPosition, width, height, fontSize);
+  const opacity = clamp(Number(settings.watermarkOpacity) ?? 80, 0, 100) / 100;
+
+  ctx.save();
+  ctx.font = `600 ${fontSize}px system-ui, -apple-system, 'Segoe UI', sans-serif`;
+  ctx.fillStyle = settings.watermarkColor || '#ffffff';
+  ctx.globalAlpha = opacity;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.45)';
+  ctx.shadowBlur = Math.max(1, Math.round(fontSize * 0.2));
+  ctx.fillText(text, x, y);
   ctx.restore();
 }
 
@@ -85,6 +107,7 @@ export async function compressImage(file, settings) {
   }
 
   drawSource(ctx, canvasSize, targetSize, bitmap, crop, settings.rotate, settings.flip);
+  drawWatermark(ctx, canvasSize.width, canvasSize.height, settings);
   bitmap.close();
 
   const encode = (quality) => canvas.convertToBlob({ type: mimeFromFormat(format), quality });

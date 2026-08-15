@@ -128,6 +128,28 @@
               <span class="field-label">输出文件名后缀</span>
               <input type="text" placeholder="例如 _compressed" data-setting="suffix" />
             </label>
+
+            <label class="field field-wide">
+              <span class="field-label">文字水印（留空则不添加）</span>
+              <input type="text" placeholder="例如 @你的名字" data-setting="watermarkText" />
+            </label>
+            <label class="field">
+              <span class="field-label">水印位置</span>
+              <select data-setting="watermarkPosition"></select>
+            </label>
+            <label class="field">
+              <span class="field-label">水印字号（%）</span>
+              <input type="number" min="1" max="20" value="5" data-setting="watermarkSize" />
+              <small class="field-note">占图片短边的百分比</small>
+            </label>
+            <label class="field">
+              <span class="field-label">水印颜色</span>
+              <input type="color" value="#ffffff" data-setting="watermarkColor" />
+            </label>
+            <label class="field">
+              <span class="field-label">水印不透明度（%）</span>
+              <input type="number" min="0" max="100" value="80" data-setting="watermarkOpacity" />
+            </label>
           </div>
           <button data-rerun class="btn btn-ghost" hidden type="button">按新设置重新转换全部</button>
         </section>

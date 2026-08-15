@@ -15,6 +15,11 @@ export const DEFAULT_SETTINGS = Object.freeze({
   background: '#ffffff',
   prefix: '',
   suffix: '',
+  watermarkText: '',
+  watermarkPosition: 'bottom-right',
+  watermarkSize: 5,
+  watermarkColor: '#ffffff',
+  watermarkOpacity: 80,
 });
 
 export const SIZE_PRESETS = [
@@ -36,4 +41,16 @@ export const FLIPS = [
   { value: 'none', label: '不翻转' },
   { value: 'horizontal', label: '水平翻转' },
   { value: 'vertical', label: '垂直翻转' },
+];
+
+export const WATERMARK_POSITIONS = [
+  { value: 'top-left', label: '左上' },
+  { value: 'top-center', label: '上中' },
+  { value: 'top-right', label: '右上' },
+  { value: 'middle-left', label: '左中' },
+  { value: 'middle-center', label: '居中' },
+  { value: 'middle-right', label: '右中' },
+  { value: 'bottom-left', label: '左下' },
+  { value: 'bottom-center', label: '下中' },
+  { value: 'bottom-right', label: '右下' },
 ];

@@ -1,13 +1,22 @@
-import { SIZE_PRESETS, ROTATIONS, FLIPS } from '../config.js';
+import { SIZE_PRESETS, ROTATIONS, FLIPS, WATERMARK_POSITIONS } from '../config.js';
 import { detectEncodableFormats } from '../utils/image.js';
 
 const SELECT_SOURCES = {
   preset: SIZE_PRESETS,
   rotate: ROTATIONS,
   flip: FLIPS,
+  watermarkPosition: WATERMARK_POSITIONS,
 };
 
-const NUMERIC_KEYS = new Set(['quality', 'rotate', 'targetKb', 'longestEdge', 'percent']);
+const NUMERIC_KEYS = new Set([
+  'quality',
+  'rotate',
+  'targetKb',
+  'longestEdge',
+  'percent',
+  'watermarkSize',
+  'watermarkOpacity',
+]);
 
 export function initSettingsPanel(root, store, onRerun) {
   const controls = [...root.querySelectorAll('[data-setting]')];

@@ -2,10 +2,19 @@
 // 运行在 Web Worker 中，全程本地处理。
 
 import { resolveFormat, mimeFromFormat, isLosslessFormat } from './utils/image.js';
-import { clamp, computeTargetSize, normalizedCropToRect, rotatedSize, squareCropRect } from './utils/geometry.js';
+import {
+  clamp,
+  aspectCropRect,
+  computeTargetSize,
+  mergeCrops,
+  normalizedCropToRect,
+  rotatedSize,
+  squareCropRect,
+} from './utils/geometry.js';
 import { findQualityForSize } from './utils/quality.js';
 import { computeWatermarkPosition } from './utils/watermark.js';
 import { resolveResize } from './utils/settings.js';
+import { findScenario } from './config.js';
 
 function drawSource(ctx, canvasSize, targetSize, bitmap, crop, rotate, flip) {
   const { width: cw, height: ch } = canvasSize;
@@ -80,11 +89,21 @@ export async function compressImage(file, settings, itemCrop = null) {
     };
   }
 
-  const crop = itemCrop
+  const baseCrop = itemCrop
     ? normalizedCropToRect(itemCrop, originalWidth, originalHeight)
     : squareCropRect(originalWidth, originalHeight, settings.squareCrop);
-  const { mode, value } = resolveResize(settings);
-  const targetSize = computeTargetSize(crop.sw, crop.sh, mode, value);
+
+  let sourceRect = baseCrop;
+  let targetSize;
+  const scenario = settings.resizeMode === 'scenario' ? findScenario(settings.scenario) : null;
+  if (scenario) {
+    const aspect = aspectCropRect(baseCrop.sw, baseCrop.sh, scenario.width, scenario.height);
+    sourceRect = mergeCrops(baseCrop, aspect);
+    targetSize = { width: scenario.width, height: scenario.height };
+  } else {
+    const { mode, value } = resolveResize(settings);
+    targetSize = computeTargetSize(baseCrop.sw, baseCrop.sh, mode, value);
+  }
   const canvasSize = rotatedSize(targetSize.width, targetSize.height, settings.rotate);
 
   const canvas = new OffscreenCanvas(canvasSize.width, canvasSize.height);
@@ -97,7 +116,7 @@ export async function compressImage(file, settings, itemCrop = null) {
     ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
   }
 
-  drawSource(ctx, canvasSize, targetSize, bitmap, crop, settings.rotate, settings.flip);
+  drawSource(ctx, canvasSize, targetSize, bitmap, sourceRect, settings.rotate, settings.flip);
   drawWatermark(ctx, canvasSize.width, canvasSize.height, settings);
   bitmap.close();
 

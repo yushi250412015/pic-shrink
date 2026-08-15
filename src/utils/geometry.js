@@ -65,3 +65,25 @@ export function normalizedCropToRect(crop, width, height) {
     sh: clamp(ch, 1, height - sy),
   };
 }
+
+/** 计算「cover」居中裁剪矩形：把源图裁成与目标宽高比一致的区域 */
+export function aspectCropRect(srcW, srcH, targetW, targetH) {
+  const targetRatio = targetW / targetH;
+  const srcRatio = srcW / srcH;
+  if (srcRatio > targetRatio) {
+    const sw = Math.max(1, Math.round(srcH * targetRatio));
+    return { sx: Math.round((srcW - sw) / 2), sy: 0, sw, sh: srcH };
+  }
+  const sh = Math.max(1, Math.round(srcW / targetRatio));
+  return { sx: 0, sy: Math.round((srcH - sh) / 2), sw: srcW, sh };
+}
+
+/** 合并两层裁剪（inner 是 outer 区域内的相对裁剪） */
+export function mergeCrops(outer, inner) {
+  return {
+    sx: outer.sx + inner.sx,
+    sy: outer.sy + inner.sy,
+    sw: inner.sw,
+    sh: inner.sh,
+  };
+}

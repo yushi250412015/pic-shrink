@@ -1,8 +1,9 @@
-import { SIZE_PRESETS, ROTATIONS, FLIPS, WATERMARK_POSITIONS } from '../config.js';
+import { SIZE_PRESETS, SCENARIOS, ROTATIONS, FLIPS, WATERMARK_POSITIONS } from '../config.js';
 import { detectEncodableFormats } from './capabilities.js';
 
 const SELECT_SOURCES = {
   preset: SIZE_PRESETS,
+  scenario: SCENARIOS,
   rotate: ROTATIONS,
   flip: FLIPS,
   watermarkPosition: WATERMARK_POSITIONS,

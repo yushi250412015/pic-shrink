@@ -7,6 +7,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   targetKb: 200,
   resizeMode: 'none',
   preset: '1920',
+  scenario: 'wechat-avatar',
   longestEdge: 1920,
   percent: 50,
   squareCrop: false,
@@ -29,6 +30,21 @@ export const SIZE_PRESETS = [
   { value: '2560', label: '2K · 2560px' },
   { value: '3840', label: '4K · 3840px' },
 ];
+
+export const SCENARIOS = [
+  { value: 'wechat-avatar', label: '微信头像（方形）', width: 132, height: 132 },
+  { value: 'wechat-cover', label: '公众号封面', width: 900, height: 383 },
+  { value: 'redbook', label: '小红书 3:4', width: 1080, height: 1440 },
+  { value: 'redbook-square', label: '小红书 1:1', width: 1080, height: 1080 },
+  { value: 'taobao', label: '淘宝主图 1:1', width: 800, height: 800 },
+  { value: 'video-cover', label: '视频封面 16:9', width: 1920, height: 1080 },
+  { value: 'id-1in', label: '一寸证件照', width: 295, height: 413 },
+  { value: 'id-2in', label: '二寸证件照', width: 413, height: 579 },
+];
+
+export function findScenario(id) {
+  return SCENARIOS.find((s) => s.value === id) || null;
+}
 
 export const ROTATIONS = [
   { value: 0, label: '不旋转' },

@@ -5,6 +5,8 @@ import {
   squareCropRect,
   fitContain,
   normalizedCropToRect,
+  aspectCropRect,
+  mergeCrops,
 } from '../src/utils/geometry.js';
 
 describe('computeTargetSize', () => {
@@ -74,6 +76,31 @@ describe('normalizedCropToRect', () => {
       sy: 99,
       sw: 1,
       sh: 1,
+    });
+  });
+});
+
+describe('aspectCropRect', () => {
+  it('横向源图裁成竖版目标比例时裁上下', () => {
+    expect(aspectCropRect(4000, 2000, 900, 383)).toEqual({ sx: 0, sy: 149, sw: 4000, sh: 1702 });
+  });
+
+  it('方形源图裁成宽幅比例时裁上下', () => {
+    expect(aspectCropRect(800, 800, 900, 383)).toEqual({ sx: 0, sy: 230, sw: 800, sh: 340 });
+  });
+
+  it('宽幅源图裁成方形时裁左右', () => {
+    expect(aspectCropRect(3000, 1000, 800, 800)).toEqual({ sx: 1000, sy: 0, sw: 1000, sh: 1000 });
+  });
+});
+
+describe('mergeCrops', () => {
+  it('叠加内外两层裁剪偏移', () => {
+    expect(mergeCrops({ sx: 10, sy: 20, sw: 100, sh: 100 }, { sx: 5, sy: 5, sw: 90, sh: 90 })).toEqual({
+      sx: 15,
+      sy: 25,
+      sw: 90,
+      sh: 90,
     });
   });
 });

@@ -15,6 +15,7 @@ import { findQualityForSize } from './utils/quality.js';
 import { computeWatermarkPosition } from './utils/watermark.js';
 import { resolveResize } from './utils/settings.js';
 import { findScenario } from './config.js';
+import gifsicle from 'gifsicle-wasm-browser';
 
 function drawSource(ctx, canvasSize, targetSize, bitmap, crop, rotate, flip) {
   const { width: cw, height: ch } = canvasSize;
@@ -34,6 +35,50 @@ function drawSource(ctx, canvasSize, targetSize, bitmap, crop, rotate, flip) {
 
   ctx.drawImage(bitmap, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, dw, dh);
   ctx.restore();
+}
+
+async function processGif(file, settings, itemCrop, originalWidth, originalHeight) {
+  const baseCrop = itemCrop
+    ? normalizedCropToRect(itemCrop, originalWidth, originalHeight)
+    : squareCropRect(originalWidth, originalHeight, settings.squareCrop);
+
+  const args = [];
+  const cropped = baseCrop.sw !== originalWidth || baseCrop.sh !== originalHeight;
+  if (cropped) {
+    args.push(`--crop ${baseCrop.sx},${baseCrop.sy}+${baseCrop.sw}x${baseCrop.sh}`);
+  }
+
+  let width = baseCrop.sw;
+  let height = baseCrop.sh;
+  const { mode, value } = resolveResize(settings);
+  if (mode !== 'none') {
+    const target = computeTargetSize(baseCrop.sw, baseCrop.sh, mode, value);
+    width = target.width;
+    height = target.height;
+    args.push(`--resize ${width}x${height}`);
+  }
+
+  args.push('-O1');
+  const lossy = Math.max(0, Math.min(200, Math.round((1 - settings.quality) * 200)));
+  if (lossy > 0) args.push(`--lossy=${lossy}`);
+
+  const command = `input.gif ${args.join(' ')} -o /out/out.gif`;
+  const outputs = await gifsicle.run({
+    input: [{ file, name: 'input.gif' }],
+    command: [command],
+  });
+
+  if (!outputs || !outputs[0]) throw new Error('GIF 处理失败');
+
+  return {
+    blob: outputs[0],
+    width,
+    height,
+    format: 'gif',
+    originalWidth,
+    originalHeight,
+    quality: settings.quality,
+  };
 }
 
 function drawWatermark(ctx, width, height, settings) {
@@ -75,18 +120,10 @@ export async function compressImage(file, settings, itemCrop = null) {
   const originalWidth = bitmap.width;
   const originalHeight = bitmap.height;
 
-  // GIF 保持原样，不重编码以保留动画
+  // GIF：用 gifsicle 处理（压缩/裁剪/缩放），保留动画帧
   if (file.type === 'image/gif' && format === 'gif') {
     bitmap.close();
-    return {
-      blob: file,
-      width: originalWidth,
-      height: originalHeight,
-      format: 'gif',
-      originalWidth,
-      originalHeight,
-      quality: null,
-    };
+    return processGif(file, settings, itemCrop, originalWidth, originalHeight);
   }
 
   const baseCrop = itemCrop

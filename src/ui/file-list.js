@@ -62,6 +62,14 @@ export function initFileList(root, store, pipeline) {
         ? `<div class="meta-row"><b>${t('list.gif.note')}</b></div>`
         : '';
 
+    const cameraRow =
+      item.exif && (item.exif.make || item.exif.model)
+        ? `<div class="meta-row"><span>${t('list.exif.camera')}</span><b>${escapeHtml([item.exif.make, item.exif.model].filter(Boolean).join(' '))}</b></div>`
+        : '';
+    const exifRow = item.exif
+      ? `<div class="meta-row"><span>EXIF</span><b>${t('list.exif.removed')}</b></div>`
+      : '';
+
     return `
       <div class="item-body">
         <div class="preview">
@@ -71,6 +79,8 @@ export function initFileList(root, store, pipeline) {
         <div class="meta">
           ${rows}
           ${gifNote}
+          ${cameraRow}
+          ${exifRow}
           <div class="meta-actions">
             <button class="btn btn-primary" data-action="download" data-id="${item.id}" type="button">${t('list.download')}</button>
             <button class="btn btn-ghost" data-action="remove" data-id="${item.id}" type="button">${t('list.remove')}</button>
@@ -86,6 +96,7 @@ export function initFileList(root, store, pipeline) {
         <span class="item-name" title="${escapeHtml(item.file.name)}">${escapeHtml(item.file.name)}</span>
         <div class="item-head-actions">
           <button class="btn btn-ghost btn-small" data-action="crop" data-id="${item.id}" type="button">${cropLabel}</button>
+          ${item.exif && item.exif.hasGps ? `<span class="status status-bad" title="${t('list.exif.gps')}">GPS</span>` : ''}
           ${statusBadge(item)}
         </div>
       </div>`;

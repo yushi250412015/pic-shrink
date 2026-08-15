@@ -36,7 +36,7 @@ export function createStore(initialSettings) {
       for (const file of files) {
         const id = state.nextId;
         state.nextId += 1;
-        state.items.set(id, { id, file, status: 'idle', result: null, error: null, crop: null, rev: 0 });
+        state.items.set(id, { id, file, status: 'idle', result: null, error: null, crop: null, rev: 0, exif: null });
         added.push(id);
       }
       emit();
@@ -72,6 +72,13 @@ export function createStore(initialSettings) {
       const item = state.items.get(id);
       if (!item) return;
       item.crop = crop;
+      emit();
+    },
+
+    setItemExif(id, exif) {
+      const item = state.items.get(id);
+      if (!item) return;
+      item.exif = exif;
       emit();
     },
 

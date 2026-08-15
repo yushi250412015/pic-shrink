@@ -8,6 +8,7 @@ import { initStatsBar } from './ui/stats-bar.js';
 import { initToolbar } from './ui/toolbar.js';
 import { initPdfTool } from './ui/pdf-tool.js';
 import { applyTranslations, getLang, setLang } from './ui/i18n.js';
+import { readExif } from './exif.js';
 
 const store = createStore(DEFAULT_SETTINGS);
 const pipeline = new Pipeline(store);
@@ -15,8 +16,13 @@ const pipeline = new Pipeline(store);
 initDropZone(document.getElementById('drop-zone'), (files) => {
   const images = files.filter((file) => file.type && file.type.startsWith('image/'));
   if (!images.length) return;
-  store.addFiles(images);
+  const ids = store.addFiles(images);
   pipeline.run();
+  for (let i = 0; i < ids.length; i += 1) {
+    readExif(images[i]).then((exif) => {
+      if (exif) store.setItemExif(ids[i], exif);
+    });
+  }
 });
 
 initSettingsPanel(document.getElementById('settings-panel'), store, () => pipeline.rerun());

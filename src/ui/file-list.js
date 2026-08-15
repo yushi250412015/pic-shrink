@@ -1,8 +1,9 @@
 import { formatBytes, calcSavedPercent } from '../utils/bytes.js';
 import { escapeHtml } from '../utils/dom.js';
 import { outputNameFor, downloadBlob } from '../utils/download.js';
+import { openCropModal } from './crop-modal.js';
 
-export function initFileList(root, store) {
+export function initFileList(root, store, pipeline) {
   const list = root.querySelector('[data-file-list]');
   const emptyState = root.querySelector('[data-empty-state]');
   const urls = new Map(); // id -> { original, output }
@@ -78,10 +79,14 @@ export function initFileList(root, store) {
   }
 
   function renderItem(item) {
+    const cropLabel = item.crop ? '调整裁剪' : '裁剪';
     const head = `
       <div class="item-head">
         <span class="item-name" title="${escapeHtml(item.file.name)}">${escapeHtml(item.file.name)}</span>
-        ${statusBadge(item)}
+        <div class="item-head-actions">
+          <button class="btn btn-ghost btn-small" data-action="crop" data-id="${item.id}" type="button">${cropLabel}</button>
+          ${statusBadge(item)}
+        </div>
       </div>`;
 
     if (item.status === 'done') return `<li class="file-item" id="item-${item.id}">${head}${doneBody(item)}</li>`;
@@ -117,6 +122,19 @@ export function initFileList(root, store) {
     const item = store.getState().items.get(id);
     if (!item) return;
 
+    if (button.dataset.action === 'crop') {
+      openCropModal(item.file, {
+        onConfirm: (crop) => {
+          store.setItemCrop(id, crop);
+          pipeline.rerunItem(id);
+        },
+        onClear: () => {
+          store.setItemCrop(id, null);
+          pipeline.rerunItem(id);
+        },
+      });
+      return;
+    }
     if (button.dataset.action === 'download') {
       const name = outputNameFor(item.file, item.result.format, store.getSettings());
       downloadBlob(item.result.blob, name);

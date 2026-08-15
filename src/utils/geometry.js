@@ -43,3 +43,25 @@ export function squareCropRect(width, height, enabled) {
     sh: size,
   };
 }
+
+/** 等比缩放尺寸以适配容器（不放大），用于弹窗内展示 */
+export function fitContain(width, height, maxWidth, maxHeight) {
+  const scale = Math.min(maxWidth / width, maxHeight / height, 1);
+  return { width: Math.round(width * scale), height: Math.round(height * scale) };
+}
+
+/** 把归一化裁剪矩形（0-1）换算为源图像素矩形，并约束在图像范围内 */
+export function normalizedCropToRect(crop, width, height) {
+  const x = Math.round(clamp(Number(crop.x) || 0, 0, 1) * width);
+  const y = Math.round(clamp(Number(crop.y) || 0, 0, 1) * height);
+  const cw = Math.round(clamp(Number(crop.width) || 1, 0.01, 1) * width);
+  const ch = Math.round(clamp(Number(crop.height) || 1, 0.01, 1) * height);
+  const sx = clamp(x, 0, width - 1);
+  const sy = clamp(y, 0, height - 1);
+  return {
+    sx,
+    sy,
+    sw: clamp(cw, 1, width - sx),
+    sh: clamp(ch, 1, height - sy),
+  };
+}

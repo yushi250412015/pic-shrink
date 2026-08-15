@@ -613,3 +613,114 @@ input {
     height: 200px;
   }
 }
+
+/* ================= 裁剪 ================= */
+
+.item-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.crop-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.crop-dialog {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  max-width: 92vw;
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.crop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+}
+
+.crop-close {
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.crop-close:hover {
+  color: var(--text);
+}
+
+.crop-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--checker-b);
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  overflow: auto;
+}
+
+.crop-canvas {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+  touch-action: none;
+}
+
+.crop-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.crop-box {
+  position: absolute;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.55);
+  cursor: move;
+  box-sizing: border-box;
+}
+
+.crop-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.4);
+  border-radius: 2px;
+}
+
+.crop-handle[data-handle='nw'] { left: -6px; top: -6px; cursor: nwse-resize; }
+.crop-handle[data-handle='ne'] { right: -6px; top: -6px; cursor: nesw-resize; }
+.crop-handle[data-handle='sw'] { left: -6px; bottom: -6px; cursor: nesw-resize; }
+.crop-handle[data-handle='se'] { right: -6px; bottom: -6px; cursor: nwse-resize; }
+
+.crop-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}

@@ -18,6 +18,6 @@ initDropZone(document.getElementById('drop-zone'), (files) => {
 });
 
 initSettingsPanel(document.getElementById('settings-panel'), store, () => pipeline.rerun());
-initFileList(document.getElementById('list-section'), store);
+initFileList(document.getElementById('list-section'), store, pipeline);
 initStatsBar(document.getElementById('stats'), store);
 initToolbar(document.getElementById('toolbar'), store);

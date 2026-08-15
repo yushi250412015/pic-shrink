@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { computeTargetSize, rotatedSize, squareCropRect } from '../src/utils/geometry.js';
+import {
+  computeTargetSize,
+  rotatedSize,
+  squareCropRect,
+  fitContain,
+  normalizedCropToRect,
+} from '../src/utils/geometry.js';
 
 describe('computeTargetSize', () => {
   it('不缩放时原样返回', () => {
@@ -41,5 +47,33 @@ describe('squareCropRect', () => {
 
   it('纵向图居中裁方形', () => {
     expect(squareCropRect(200, 300, true)).toEqual({ sx: 0, sy: 50, sw: 200, sh: 200 });
+  });
+});
+
+describe('fitContain', () => {
+  it('等比缩放适配容器且不放大', () => {
+    expect(fitContain(4000, 2000, 800, 800)).toEqual({ width: 800, height: 400 });
+    expect(fitContain(200, 100, 800, 800)).toEqual({ width: 200, height: 100 });
+    expect(fitContain(1000, 2000, 500, 500)).toEqual({ width: 250, height: 500 });
+  });
+});
+
+describe('normalizedCropToRect', () => {
+  it('归一化矩形换算为像素', () => {
+    expect(normalizedCropToRect({ x: 0.25, y: 0.25, width: 0.5, height: 0.5 }, 400, 200)).toEqual({
+      sx: 100,
+      sy: 50,
+      sw: 200,
+      sh: 100,
+    });
+  });
+
+  it('越界值被约束在图像内', () => {
+    expect(normalizedCropToRect({ x: 1, y: 1, width: 1, height: 1 }, 100, 100)).toEqual({
+      sx: 99,
+      sy: 99,
+      sw: 1,
+      sh: 1,
+    });
   });
 });

@@ -2,21 +2,10 @@
 // 运行在 Web Worker 中，全程本地处理。
 
 import { resolveFormat, mimeFromFormat, isLosslessFormat } from './utils/image.js';
-import { clamp, computeTargetSize, rotatedSize, squareCropRect } from './utils/geometry.js';
+import { clamp, computeTargetSize, normalizedCropToRect, rotatedSize, squareCropRect } from './utils/geometry.js';
 import { findQualityForSize } from './utils/quality.js';
 import { computeWatermarkPosition } from './utils/watermark.js';
-
-function resolveResize(settings) {
-  const { resizeMode } = settings;
-  if (resizeMode === 'preset') {
-    return settings.preset === 'original'
-      ? { mode: 'none', value: 0 }
-      : { mode: 'longest', value: Number(settings.preset) };
-  }
-  if (resizeMode === 'longest') return { mode: 'longest', value: settings.longestEdge };
-  if (resizeMode === 'percent') return { mode: 'percent', value: settings.percent };
-  return { mode: 'none', value: 0 };
-}
+import { resolveResize } from './utils/settings.js';
 
 function drawSource(ctx, canvasSize, targetSize, bitmap, crop, rotate, flip) {
   const { width: cw, height: ch } = canvasSize;
@@ -64,7 +53,7 @@ function drawWatermark(ctx, width, height, settings) {
  * @returns {Promise<{blob: Blob, width: number, height: number, format: string,
  *   originalWidth: number, originalHeight: number, quality: number}>}
  */
-export async function compressImage(file, settings) {
+export async function compressImage(file, settings, itemCrop = null) {
   const format = resolveFormat(file.type, settings.format);
 
   let bitmap;
@@ -91,7 +80,9 @@ export async function compressImage(file, settings) {
     };
   }
 
-  const crop = squareCropRect(originalWidth, originalHeight, settings.squareCrop);
+  const crop = itemCrop
+    ? normalizedCropToRect(itemCrop, originalWidth, originalHeight)
+    : squareCropRect(originalWidth, originalHeight, settings.squareCrop);
   const { mode, value } = resolveResize(settings);
   const targetSize = computeTargetSize(crop.sw, crop.sh, mode, value);
   const canvasSize = rotatedSize(targetSize.width, targetSize.height, settings.rotate);

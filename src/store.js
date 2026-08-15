@@ -36,7 +36,7 @@ export function createStore(initialSettings) {
       for (const file of files) {
         const id = state.nextId;
         state.nextId += 1;
-        state.items.set(id, { id, file, status: 'idle', result: null, error: null });
+        state.items.set(id, { id, file, status: 'idle', result: null, error: null, crop: null, rev: 0 });
         added.push(id);
       }
       emit();
@@ -68,6 +68,23 @@ export function createStore(initialSettings) {
       emit();
     },
 
+    setItemCrop(id, crop) {
+      const item = state.items.get(id);
+      if (!item) return;
+      item.crop = crop;
+      emit();
+    },
+
+    resetItem(id) {
+      const item = state.items.get(id);
+      if (!item) return;
+      item.status = 'idle';
+      item.result = null;
+      item.error = null;
+      item.rev += 1;
+      emit();
+    },
+
     removeItem(id) {
       state.items.delete(id);
       emit();
@@ -78,6 +95,7 @@ export function createStore(initialSettings) {
         item.status = 'idle';
         item.result = null;
         item.error = null;
+        item.rev += 1;
       }
       emit();
     },

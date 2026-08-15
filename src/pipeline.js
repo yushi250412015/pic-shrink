@@ -31,6 +31,8 @@ export class Pipeline {
   }
 
   #handleResult(data) {
+    const item = this.store.getState().items.get(data.id);
+    if (!item || item.rev !== data.rev) return; // 过期结果，忽略
     if (data.ok) {
       this.store.setItemResult(data.id, {
         blob: data.blob,
@@ -65,9 +67,30 @@ export class Pipeline {
     const { items, settings } = this.store.getState();
     this.queue = [];
     for (const item of items.values()) {
-      this.queue.push({ id: item.id, file: item.file, settings: { ...settings } });
+      this.queue.push({
+        id: item.id,
+        file: item.file,
+        settings: { ...settings },
+        crop: item.crop || null,
+        rev: item.rev,
+      });
       this.store.setItemStatus(item.id, 'queued');
     }
+    this.#pump();
+  }
+
+  rerunItem(id) {
+    this.#ensureWorkers();
+    const item = this.store.getState().items.get(id);
+    if (!item) return;
+    this.store.resetItem(id);
+    this.queue.push({
+      id: item.id,
+      file: item.file,
+      settings: { ...this.store.getState().settings },
+      crop: item.crop || null,
+      rev: item.rev,
+    });
     this.#pump();
   }
 

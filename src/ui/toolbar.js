@@ -1,4 +1,5 @@
 import { downloadAllAsZip } from './download.js';
+import { t } from './i18n.js';
 
 export function initToolbar(root, store) {
   const downloadAll = root.querySelector('[data-download-all]');
@@ -13,7 +14,7 @@ export function initToolbar(root, store) {
   downloadAll.addEventListener('click', async () => {
     downloadAll.disabled = true;
     const original = downloadAll.textContent;
-    downloadAll.textContent = '打包中…';
+    downloadAll.textContent = t('toolbar.packaging');
     try {
       await downloadAllAsZip(store.getState().items, store.getSettings());
     } finally {

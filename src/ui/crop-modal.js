@@ -1,4 +1,5 @@
 import { clamp, fitContain } from '../utils/geometry.js';
+import { t } from './i18n.js';
 
 const MIN_SIZE = 0.02;
 
@@ -14,10 +15,10 @@ export function openCropModal(file, { onConfirm, onClear } = {}) {
   const overlay = document.createElement('div');
   overlay.className = 'crop-overlay';
   overlay.innerHTML = `
-    <div class="crop-dialog" role="dialog" aria-modal="true" aria-label="裁剪图片">
+    <div class="crop-dialog" role="dialog" aria-modal="true" aria-label="${t('crop.title')}">
       <div class="crop-head">
-        <span>裁剪图片</span>
-        <button class="crop-close" data-action="cancel" type="button" aria-label="关闭">✕</button>
+        <span>${t('crop.title')}</span>
+        <button class="crop-close" data-action="cancel" type="button" aria-label="${t('crop.close')}">✕</button>
       </div>
       <div class="crop-stage">
         <div class="crop-canvas">
@@ -31,9 +32,9 @@ export function openCropModal(file, { onConfirm, onClear } = {}) {
         </div>
       </div>
       <div class="crop-actions">
-        <button class="btn btn-ghost" data-action="clear" type="button">清除裁剪</button>
-        <button class="btn btn-ghost" data-action="cancel" type="button">取消</button>
-        <button class="btn btn-primary" data-action="apply" type="button">应用裁剪</button>
+        <button class="btn btn-ghost" data-action="clear" type="button">${t('crop.clear')}</button>
+        <button class="btn btn-ghost" data-action="cancel" type="button">${t('crop.cancel')}</button>
+        <button class="btn btn-primary" data-action="apply" type="button">${t('crop.apply')}</button>
       </div>
     </div>`;
 

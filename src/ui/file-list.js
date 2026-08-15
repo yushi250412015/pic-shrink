@@ -2,6 +2,7 @@ import { formatBytes, calcSavedPercent } from '../utils/bytes.js';
 import { escapeHtml } from '../utils/dom.js';
 import { outputNameFor, downloadBlob } from './download.js';
 import { openCropModal } from './crop-modal.js';
+import { t } from './i18n.js';
 
 export function initFileList(root, store, pipeline) {
   const list = root.querySelector('[data-file-list]');
@@ -36,8 +37,8 @@ export function initFileList(root, store, pipeline) {
       const arrow = saved > 0 ? '↓' : saved < 0 ? '↑' : '·';
       return `<span class="status status-${cls}">${arrow} ${Math.abs(saved)}%</span>`;
     }
-    if (item.status === 'error') return '<span class="status status-error">失败</span>';
-    const label = item.status === 'queued' ? '排队中…' : '处理中…';
+    if (item.status === 'error') return `<span class="status status-error">${t('list.failed')}</span>`;
+    const label = item.status === 'queued' ? t('list.queued') : t('list.processing');
     return `<span class="status status-pending">${label}</span>`;
   }
 
@@ -46,11 +47,11 @@ export function initFileList(root, store, pipeline) {
     const { result } = item;
 
     const rows = [
-      ['原大小', formatBytes(item.file.size)],
-      ['新大小', formatBytes(result.blob.size)],
-      ['尺寸', `${result.width} × ${result.height}`],
-      ['原尺寸', `${result.originalWidth} × ${result.originalHeight}`],
-      ['格式', result.format.toUpperCase()],
+      [t('list.meta.original'), formatBytes(item.file.size)],
+      [t('list.meta.output'), formatBytes(result.blob.size)],
+      [t('list.meta.dim'), `${result.width} × ${result.height}`],
+      [t('list.meta.originalDim'), `${result.originalWidth} × ${result.originalHeight}`],
+      [t('list.meta.format'), result.format.toUpperCase()],
     ]
       .filter(([, value]) => value !== undefined && value !== null && value !== '')
       .map(([label, value]) => `<div class="meta-row"><span>${label}</span><b>${value}</b></div>`)
@@ -58,28 +59,28 @@ export function initFileList(root, store, pipeline) {
 
     const gifNote =
       item.file.type === 'image/gif' && result.format === 'gif'
-        ? '<div class="meta-row"><span>提示</span><b>GIF 原样保留</b></div>'
+        ? `<div class="meta-row"><b>${t('list.gif.note')}</b></div>`
         : '';
 
     return `
       <div class="item-body">
         <div class="preview">
-          <img class="preview-img" data-preview data-id="${item.id}" src="${entry.output}" alt="预览" draggable="false" />
-          <span class="preview-tag">按住查看原图</span>
+          <img class="preview-img" data-preview data-id="${item.id}" src="${entry.output}" alt="${t('list.preview.tag')}" draggable="false" />
+          <span class="preview-tag">${t('list.preview.tag')}</span>
         </div>
         <div class="meta">
           ${rows}
           ${gifNote}
           <div class="meta-actions">
-            <button class="btn btn-primary" data-action="download" data-id="${item.id}" type="button">下载</button>
-            <button class="btn btn-ghost" data-action="remove" data-id="${item.id}" type="button">移除</button>
+            <button class="btn btn-primary" data-action="download" data-id="${item.id}" type="button">${t('list.download')}</button>
+            <button class="btn btn-ghost" data-action="remove" data-id="${item.id}" type="button">${t('list.remove')}</button>
           </div>
         </div>
       </div>`;
   }
 
   function renderItem(item) {
-    const cropLabel = item.crop ? '调整裁剪' : '裁剪';
+    const cropLabel = item.crop ? t('list.crop.adjust') : t('list.crop');
     const head = `
       <div class="item-head">
         <span class="item-name" title="${escapeHtml(item.file.name)}">${escapeHtml(item.file.name)}</span>

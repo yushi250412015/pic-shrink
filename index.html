@@ -6,7 +6,7 @@
     <title>轻图 Pic Shrink · 本地图片压缩工具箱</title>
     <meta
       name="description"
-      content="纯本地运行的图片压缩与格式转换工具：批量压缩、目标大小压缩、JPG/PNG/WebP/AVIF 转换、旋转翻转、尺寸缩放，图片永不上传服务器。"
+      content="纯本地运行的图片压缩与格式转换工具：批量压缩、目标大小压缩、JPG/PNG/WebP/AVIF 转换、旋转翻转、尺寸缩放、PDF 合并拆分，图片与文件永不上传服务器。"
     />
     <meta name="theme-color" content="#4f46e5" />
     <link
@@ -22,196 +22,216 @@
           <span class="logo" aria-hidden="true">🗜️</span>
           <div>
             <h1>轻图 <span class="brand-en">Pic Shrink</span></h1>
-            <p class="tagline">本地图片压缩 · 格式转换 · 尺寸缩放</p>
+            <p class="tagline" data-i18n="brand.tagline">本地图片压缩 · 格式转换 · 尺寸缩放</p>
           </div>
         </div>
-        <span class="privacy-badge" title="所有处理都在你的浏览器中完成，图片不会上传到任何服务器"
-          >🔒 图片不出本地</span
-        >
+        <div class="header-actions">
+          <span class="privacy-badge" data-i18n="privacy.badge" data-i18n-title="privacy.title"
+            >🔒 图片不出本地</span
+          >
+          <button id="lang-toggle" class="lang-toggle" type="button">EN</button>
+        </div>
       </header>
 
       <div class="mode-switch" role="tablist" aria-label="工具切换">
-        <button class="active" data-mode="image" type="button">图片工具</button>
-        <button data-mode="pdf" type="button">PDF 工具</button>
+        <button class="active" data-mode="image" type="button" data-i18n="mode.image">图片工具</button>
+        <button data-mode="pdf" type="button" data-i18n="mode.pdf">PDF 工具</button>
       </div>
 
       <main>
         <div id="image-app">
-        <section id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="选择或拖入图片">
-          <input data-file-input type="file" accept="image/*" multiple hidden />
-          <div class="dz-icon" aria-hidden="true">🖼️</div>
-          <p class="dz-title">把图片拖到这里，或点击选择</p>
-          <p class="dz-sub">支持 JPG / PNG / WebP / GIF / BMP / AVIF · 可多选批量 · 也支持 Ctrl+V 粘贴</p>
-        </section>
+          <section id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="选择或拖入图片">
+            <input data-file-input type="file" accept="image/*" multiple hidden />
+            <div class="dz-icon" aria-hidden="true">🖼️</div>
+            <p class="dz-title" data-i18n="dropzone.image.title">把图片拖到这里，或点击选择</p>
+            <p class="dz-sub" data-i18n="dropzone.image.sub">
+              支持 JPG / PNG / WebP / GIF / BMP / AVIF · 可多选批量 · 也支持 Ctrl+V 粘贴
+            </p>
+          </section>
 
-        <section id="settings-panel" class="settings panel" aria-label="转换设置">
-          <div class="panel-title">转换设置</div>
-          <div class="settings-grid">
-            <label class="field">
-              <span class="field-label">输出格式</span>
-              <select data-setting="format">
-                <option value="auto">保持原格式</option>
-                <option value="jpeg">JPEG</option>
-                <option value="png">PNG</option>
-                <option value="webp">WebP</option>
-                <option value="avif">AVIF</option>
-              </select>
-            </label>
-
-            <div class="field field-wide">
-              <span class="field-label">压缩方式</span>
-              <div class="segmented">
-                <label class="seg-item">
-                  <input type="radio" name="strategy" value="quality" data-setting="strategy" />
-                  <span>按质量</span>
-                </label>
-                <label class="seg-item">
-                  <input type="radio" name="strategy" value="target-size" data-setting="strategy" />
-                  <span>按目标大小</span>
-                </label>
-              </div>
-              <div class="strategy-row" data-strategy="quality">
-                <input type="range" min="10" max="100" step="1" value="80" data-setting="quality" />
-                <b data-quality-label>80%</b>
-              </div>
-              <div class="strategy-row hidden" data-strategy="target-size">
-                <input type="number" min="1" value="200" data-setting="targetKb" />
-                <span class="field-note">KB 以内（JPEG / WebP / AVIF）</span>
-              </div>
-            </div>
-
-            <label class="field">
-              <span class="field-label">尺寸缩放</span>
-              <select data-setting="resizeMode">
-                <option value="none">不缩放</option>
-                <option value="preset">常用预设</option>
-                <option value="longest">最长边限制</option>
-                <option value="percent">按百分比</option>
-                <option value="scenario">场景预设</option>
-              </select>
-            </label>
-
-            <label class="field hidden" data-resize-field="preset">
-              <span class="field-label">预设尺寸</span>
-              <select data-setting="preset"></select>
-            </label>
-            <label class="field hidden" data-resize-field="longest">
-              <span class="field-label">最长边（像素）</span>
-              <input type="number" min="1" max="20000" value="1920" data-setting="longestEdge" />
-            </label>
-            <label class="field hidden" data-resize-field="percent">
-              <span class="field-label">缩放比例（%）</span>
-              <input type="number" min="1" max="1000" value="50" data-setting="percent" />
-            </label>
-            <label class="field hidden" data-resize-field="scenario">
-              <span class="field-label">平台尺寸</span>
-              <select data-setting="scenario"></select>
-              <small class="field-note">自动居中裁成对应比例并缩放到精确尺寸</small>
-            </label>
-
-            <label class="field">
-              <span class="field-label">旋转</span>
-              <select data-setting="rotate"></select>
-            </label>
-            <label class="field">
-              <span class="field-label">翻转</span>
-              <select data-setting="flip"></select>
-            </label>
-
-            <label class="field">
-              <span class="field-label">裁剪</span>
-              <label class="checkbox">
-                <input type="checkbox" data-setting="squareCrop" />
-                <span>居中裁剪为正方形</span>
+          <section id="settings-panel" class="settings panel" aria-label="转换设置">
+            <div class="panel-title" data-i18n="settings.title">转换设置</div>
+            <div class="settings-grid">
+              <label class="field">
+                <span class="field-label" data-i18n="settings.format">输出格式</span>
+                <select data-setting="format">
+                  <option value="auto" data-i18n="settings.format.auto">保持原格式</option>
+                  <option value="jpeg">JPEG</option>
+                  <option value="png">PNG</option>
+                  <option value="webp">WebP</option>
+                  <option value="avif">AVIF</option>
+                </select>
               </label>
-            </label>
 
-            <label class="field">
-              <span class="field-label">JPEG 背景填充</span>
-              <input type="color" value="#ffffff" data-setting="background" />
-              <small class="field-note">转 JPEG 时透明区域的填充色</small>
-            </label>
+              <div class="field field-wide">
+                <span class="field-label" data-i18n="settings.strategy">压缩方式</span>
+                <div class="segmented">
+                  <label class="seg-item">
+                    <input type="radio" name="strategy" value="quality" data-setting="strategy" />
+                    <span data-i18n="settings.strategy.quality">按质量</span>
+                  </label>
+                  <label class="seg-item">
+                    <input type="radio" name="strategy" value="target-size" data-setting="strategy" />
+                    <span data-i18n="settings.strategy.target">按目标大小</span>
+                  </label>
+                </div>
+                <div class="strategy-row" data-strategy="quality">
+                  <input type="range" min="10" max="100" step="1" value="80" data-setting="quality" />
+                  <b data-quality-label>80%</b>
+                </div>
+                <div class="strategy-row hidden" data-strategy="target-size">
+                  <input type="number" min="1" value="200" data-setting="targetKb" />
+                  <span class="field-note" data-i18n="settings.target.note">KB 以内（JPEG / WebP / AVIF）</span>
+                </div>
+              </div>
 
-            <label class="field">
-              <span class="field-label">输出文件名前缀</span>
-              <input type="text" placeholder="例如 pic_" data-setting="prefix" />
-            </label>
-            <label class="field">
-              <span class="field-label">输出文件名后缀</span>
-              <input type="text" placeholder="例如 _compressed" data-setting="suffix" />
-            </label>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.resize">尺寸缩放</span>
+                <select data-setting="resizeMode">
+                  <option value="none" data-i18n="settings.resize.none">不缩放</option>
+                  <option value="preset" data-i18n="settings.resize.preset">常用预设</option>
+                  <option value="longest" data-i18n="settings.resize.longest">最长边限制</option>
+                  <option value="percent" data-i18n="settings.resize.percent">按百分比</option>
+                  <option value="scenario" data-i18n="settings.resize.scenario">场景预设</option>
+                </select>
+              </label>
 
-            <label class="field field-wide">
-              <span class="field-label">文字水印（留空则不添加）</span>
-              <input type="text" placeholder="例如 @你的名字" data-setting="watermarkText" />
-            </label>
-            <label class="field">
-              <span class="field-label">水印位置</span>
-              <select data-setting="watermarkPosition"></select>
-            </label>
-            <label class="field">
-              <span class="field-label">水印字号（%）</span>
-              <input type="number" min="1" max="20" value="5" data-setting="watermarkSize" />
-              <small class="field-note">占图片短边的百分比</small>
-            </label>
-            <label class="field">
-              <span class="field-label">水印颜色</span>
-              <input type="color" value="#ffffff" data-setting="watermarkColor" />
-            </label>
-            <label class="field">
-              <span class="field-label">水印不透明度（%）</span>
-              <input type="number" min="0" max="100" value="80" data-setting="watermarkOpacity" />
-            </label>
-          </div>
-          <button data-rerun class="btn btn-ghost" hidden type="button">按新设置重新转换全部</button>
-        </section>
+              <label class="field hidden" data-resize-field="preset">
+                <span class="field-label" data-i18n="settings.resize.preset.label">预设尺寸</span>
+                <select data-setting="preset"></select>
+              </label>
+              <label class="field hidden" data-resize-field="longest">
+                <span class="field-label" data-i18n="settings.resize.longest.label">最长边（像素）</span>
+                <input type="number" min="1" max="20000" value="1920" data-setting="longestEdge" />
+              </label>
+              <label class="field hidden" data-resize-field="percent">
+                <span class="field-label" data-i18n="settings.resize.percent.label">缩放比例（%）</span>
+                <input type="number" min="1" max="1000" value="50" data-setting="percent" />
+              </label>
+              <label class="field hidden" data-resize-field="scenario">
+                <span class="field-label" data-i18n="settings.resize.scenario.label">平台尺寸</span>
+                <select data-setting="scenario"></select>
+                <small class="field-note" data-i18n="settings.resize.scenario.note"
+                  >自动居中裁成对应比例并缩放到精确尺寸</small
+                >
+              </label>
 
-        <section id="stats" class="stats panel" hidden>
-          <div class="panel-title">总体情况</div>
-          <div data-stats-body class="stats-grid"></div>
-        </section>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.rotate">旋转</span>
+                <select data-setting="rotate"></select>
+              </label>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.flip">翻转</span>
+                <select data-setting="flip"></select>
+              </label>
 
-        <section id="list-section">
-          <div data-empty-state class="empty-state">还没有图片，从上面拖几张进来试试</div>
-          <ul data-file-list class="file-list"></ul>
-        </section>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.crop">裁剪</span>
+                <label class="checkbox">
+                  <input type="checkbox" data-setting="squareCrop" />
+                  <span data-i18n="settings.crop.square">居中裁剪为正方形</span>
+                </label>
+              </label>
 
-        <section id="toolbar" class="actions">
-          <button data-download-all class="btn btn-primary btn-big" hidden type="button">下载全部（ZIP）</button>
-          <button data-clear class="btn btn-ghost" hidden type="button">清空列表</button>
-        </section>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.background">JPEG 背景填充</span>
+                <input type="color" value="#ffffff" data-setting="background" />
+                <small class="field-note" data-i18n="settings.background.note"
+                  >转 JPEG 时透明区域的填充色</small
+                >
+              </label>
+
+              <label class="field">
+                <span class="field-label" data-i18n="settings.prefix">输出文件名前缀</span>
+                <input type="text" data-i18n-placeholder="settings.prefix.ph" placeholder="例如 pic_" data-setting="prefix" />
+              </label>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.suffix">输出文件名后缀</span>
+                <input
+                  type="text"
+                  data-i18n-placeholder="settings.suffix.ph"
+                  placeholder="例如 _compressed"
+                  data-setting="suffix"
+                />
+              </label>
+
+              <label class="field field-wide">
+                <span class="field-label" data-i18n="settings.watermark.text">文字水印（留空则不添加）</span>
+                <input type="text" data-i18n-placeholder="settings.watermark.text.ph" placeholder="例如 @你的名字" data-setting="watermarkText" />
+              </label>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.watermark.position">水印位置</span>
+                <select data-setting="watermarkPosition"></select>
+              </label>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.watermark.size">水印字号（%）</span>
+                <input type="number" min="1" max="20" value="5" data-setting="watermarkSize" />
+                <small class="field-note" data-i18n="settings.watermark.size.note">占图片短边的百分比</small>
+              </label>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.watermark.color">水印颜色</span>
+                <input type="color" value="#ffffff" data-setting="watermarkColor" />
+              </label>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.watermark.opacity">水印不透明度（%）</span>
+                <input type="number" min="0" max="100" value="80" data-setting="watermarkOpacity" />
+              </label>
+            </div>
+            <button data-rerun class="btn btn-ghost" hidden type="button" data-i18n="settings.rerun">
+              按新设置重新转换全部
+            </button>
+          </section>
+
+          <section id="stats" class="stats panel" hidden>
+            <div class="panel-title" data-i18n="stats.title">总体情况</div>
+            <div data-stats-body class="stats-grid"></div>
+          </section>
+
+          <section id="list-section">
+            <div data-empty-state class="empty-state" data-i18n="list.empty">
+              还没有图片，从上面拖几张进来试试
+            </div>
+            <ul data-file-list class="file-list"></ul>
+          </section>
+
+          <section id="toolbar" class="actions">
+            <button data-download-all class="btn btn-primary btn-big" hidden type="button" data-i18n="toolbar.downloadAll">
+              下载全部（ZIP）
+            </button>
+            <button data-clear class="btn btn-ghost" hidden type="button" data-i18n="toolbar.clear">清空列表</button>
+          </section>
         </div>
 
         <div id="pdf-app" hidden>
           <section class="drop-zone" data-pdf-dropzone tabindex="0" role="button" aria-label="选择或拖入 PDF">
             <input data-pdf-input type="file" accept="application/pdf" multiple hidden />
             <div class="dz-icon" aria-hidden="true">📄</div>
-            <p class="dz-title">把 PDF 拖到这里，或点击选择</p>
-            <p class="dz-sub">可多选 · 支持合并 / 拆分 / 提取页 / 优化压缩</p>
+            <p class="dz-title" data-i18n="dropzone.pdf.title">把 PDF 拖到这里，或点击选择</p>
+            <p class="dz-sub" data-i18n="dropzone.pdf.sub">可多选 · 支持合并 / 拆分 / 提取页 / 优化压缩</p>
           </section>
 
           <section class="panel">
-            <div class="panel-title">PDF 操作</div>
+            <div class="panel-title" data-i18n="pdf.title">PDF 操作</div>
             <div class="pdf-tools">
-              <button class="btn btn-primary" data-pdf-action="merge" type="button">合并全部</button>
-              <button class="btn btn-ghost" data-pdf-action="split" type="button">拆分每页</button>
-              <input class="pdf-range" data-pdf-range type="text" placeholder="提取页范围，如 1-3,5" />
-              <button class="btn btn-ghost" data-pdf-action="extract" type="button">提取所选页</button>
-              <button class="btn btn-ghost" data-pdf-action="optimize" type="button">优化压缩</button>
+              <button class="btn btn-primary" data-pdf-action="merge" type="button" data-i18n="pdf.merge">合并全部</button>
+              <button class="btn btn-ghost" data-pdf-action="split" type="button" data-i18n="pdf.split">拆分每页</button>
+              <input class="pdf-range" data-pdf-range type="text" data-i18n-placeholder="pdf.range.ph" placeholder="提取页范围，如 1-3,5" />
+              <button class="btn btn-ghost" data-pdf-action="extract" type="button" data-i18n="pdf.extract">提取所选页</button>
+              <button class="btn btn-ghost" data-pdf-action="optimize" type="button" data-i18n="pdf.optimize">优化压缩</button>
             </div>
-            <small class="field-note">所有操作都在浏览器本地完成，PDF 不会上传到服务器</small>
+            <small class="field-note" data-i18n="pdf.note">所有操作都在浏览器本地完成，PDF 不会上传到服务器</small>
           </section>
 
-          <div data-pdf-empty class="empty-state">还没有 PDF，从上面拖几个进来试试</div>
+          <div data-pdf-empty class="empty-state" data-i18n="pdf.empty">还没有 PDF，从上面拖几个进来试试</div>
           <ul data-pdf-list class="file-list"></ul>
           <div class="pdf-status" data-pdf-status hidden></div>
         </div>
       </main>
 
       <footer class="site-footer">
-        <p>完全在浏览器本地运行，不上传任何数据 · 开源免费（MIT）</p>
+        <p data-i18n="footer.note">完全在浏览器本地运行，不上传任何数据 · 开源免费（MIT）</p>
         <p>
-          <a href="https://github.com/yushi250412015/pic-shrink" target="_blank" rel="noopener noreferrer"
+          <a href="https://github.com/yushi250412015/pic-shrink" target="_blank" rel="noopener noreferrer" data-i18n="footer.repo"
             >GitHub 仓库</a
           >
         </p>

@@ -1,4 +1,5 @@
 import { formatBytes, calcSavedPercent } from '../utils/bytes.js';
+import { t } from './i18n.js';
 
 export function initStatsBar(root, store) {
   const body = root.querySelector('[data-stats-body]');
@@ -32,11 +33,11 @@ export function initStatsBar(root, store) {
 
     root.hidden = false;
     body.innerHTML = `
-      <div class="stat"><span>图片数</span><b>${items.length}</b></div>
-      <div class="stat"><span>原始大小</span><b>${formatBytes(originalSum)}</b></div>
-      <div class="stat"><span>压缩后</span><b>${formatBytes(outputSum)}</b></div>
-      <div class="stat ${cls}"><span>共节省</span><b>${sign}${Math.abs(saved)}%</b></div>
-      <div class="stat"><span>进度</span><b>${processed}/${items.length}</b></div>`;
+      <div class="stat"><span>${t('stats.count')}</span><b>${items.length}</b></div>
+      <div class="stat"><span>${t('stats.original')}</span><b>${formatBytes(originalSum)}</b></div>
+      <div class="stat"><span>${t('stats.output')}</span><b>${formatBytes(outputSum)}</b></div>
+      <div class="stat ${cls}"><span>${t('stats.saved')}</span><b>${sign}${Math.abs(saved)}%</b></div>
+      <div class="stat"><span>${t('stats.progress')}</span><b>${processed}/${items.length}</b></div>`;
   }
 
   store.subscribe(render);

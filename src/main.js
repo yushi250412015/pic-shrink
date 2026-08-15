@@ -7,6 +7,7 @@ import { initFileList } from './ui/file-list.js';
 import { initStatsBar } from './ui/stats-bar.js';
 import { initToolbar } from './ui/toolbar.js';
 import { initPdfTool } from './ui/pdf-tool.js';
+import { applyTranslations, getLang, setLang } from './ui/i18n.js';
 
 const store = createStore(DEFAULT_SETTINGS);
 const pipeline = new Pipeline(store);
@@ -38,3 +39,14 @@ for (const button of modeButtons) {
     for (const b of modeButtons) b.classList.toggle('active', b === button);
   });
 }
+
+// 语言切换
+const langToggle = document.getElementById('lang-toggle');
+langToggle.textContent = getLang() === 'zh' ? 'EN' : '中文';
+langToggle.addEventListener('click', () => {
+  setLang(getLang() === 'zh' ? 'en' : 'zh');
+  location.reload();
+});
+
+// 应用静态文案翻译
+applyTranslations(document.body);

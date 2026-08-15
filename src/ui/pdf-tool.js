@@ -2,6 +2,7 @@ import { escapeHtml } from '../utils/dom.js';
 import { formatBytes } from '../utils/bytes.js';
 import { splitExtension } from '../utils/filename.js';
 import { downloadBlob } from './download.js';
+import { t } from './i18n.js';
 
 export function initPdfTool(root) {
   const dropZone = root.querySelector('[data-pdf-dropzone]');
@@ -21,7 +22,7 @@ export function initPdfTool(root) {
     if (!cb) return;
     callbacks.delete(event.data.id);
     if (event.data.ok) cb.resolve(event.data.result);
-    else cb.reject(new Error(event.data.error || '处理失败'));
+    else cb.reject(new Error(event.data.error || t('pdf.fail')));
   };
 
   function run(op, payload) {
@@ -59,7 +60,7 @@ export function initPdfTool(root) {
           <span class="item-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
           <div class="item-head-actions">
             <span class="status status-neutral">${formatBytes(file.size)}</span>
-            <button class="btn btn-ghost btn-small" data-pdf-remove="${i}" type="button">移除</button>
+            <button class="btn btn-ghost btn-small" data-pdf-remove="${i}" type="button">${t('list.remove')}</button>
           </div>
         </div>
       </li>`,
@@ -90,17 +91,17 @@ export function initPdfTool(root) {
 
   async function doMerge() {
     if (files.length < 2) {
-      setStatus('至少需要 2 个 PDF 才能合并');
+      setStatus(t('pdf.merge.need2'));
       return;
     }
     setBusy(true);
-    setStatus('合并中…');
+    setStatus(t('pdf.merging'));
     try {
       const { blob } = await run('merge', { files: [...files] });
       downloadBlob(blob, 'merged.pdf');
-      setStatus('合并完成');
+      setStatus(t('pdf.merged'));
     } catch (e) {
-      setStatus(`合并失败：${e.message}`);
+      setStatus(t('pdf.merge.fail') + e.message);
     } finally {
       setBusy(false);
     }
@@ -109,18 +110,18 @@ export function initPdfTool(root) {
   async function doSplit() {
     if (!files.length) return;
     setBusy(true);
-    setStatus('拆分中…');
+    setStatus(t('pdf.splitting'));
     try {
       const results = [];
       for (const file of files) {
         const pages = await run('split', { files: [file] });
         const base = stripName(file.name);
-        for (const p of pages) results.push({ blob: p.blob, name: `${base}-第${p.page}页.pdf` });
+        for (const p of pages) results.push({ blob: p.blob, name: `${base}-page-${p.page}.pdf` });
       }
       await downloadResults(results, 'pdf-split.zip');
-      setStatus('拆分完成');
+      setStatus(t('pdf.split.done'));
     } catch (e) {
-      setStatus(`拆分失败：${e.message}`);
+      setStatus(t('pdf.split.fail') + e.message);
     } finally {
       setBusy(false);
     }
@@ -130,21 +131,21 @@ export function initPdfTool(root) {
     if (!files.length) return;
     const spec = rangeInput.value.trim();
     if (!spec) {
-      setStatus('请先输入页码范围，如 1-3,5');
+      setStatus(t('pdf.range.need'));
       return;
     }
     setBusy(true);
-    setStatus('提取中…');
+    setStatus(t('pdf.extracting'));
     try {
       const results = [];
       for (const file of files) {
         const { blob } = await run('extract', { files: [file], spec });
-        results.push({ blob, name: `${stripName(file.name)}-提取.pdf` });
+        results.push({ blob, name: `${stripName(file.name)}-extracted.pdf` });
       }
       await downloadResults(results, 'pdf-extract.zip');
-      setStatus('提取完成');
+      setStatus(t('pdf.extract.done'));
     } catch (e) {
-      setStatus(`提取失败：${e.message}`);
+      setStatus(t('pdf.extract.fail') + e.message);
     } finally {
       setBusy(false);
     }
@@ -153,17 +154,17 @@ export function initPdfTool(root) {
   async function doOptimize() {
     if (!files.length) return;
     setBusy(true);
-    setStatus('优化中…');
+    setStatus(t('pdf.optimizing'));
     try {
       const results = [];
       for (const file of files) {
         const { blob } = await run('optimize', { files: [file] });
-        results.push({ blob, name: `${stripName(file.name)}-优化.pdf` });
+        results.push({ blob, name: `${stripName(file.name)}-optimized.pdf` });
       }
       await downloadResults(results, 'pdf-optimize.zip');
-      setStatus('优化完成');
+      setStatus(t('pdf.optimize.done'));
     } catch (e) {
-      setStatus(`优化失败：${e.message}`);
+      setStatus(t('pdf.optimize.fail') + e.message);
     } finally {
       setBusy(false);
     }

@@ -1,4 +1,4 @@
-// 应用常量、默认设置与预设选项
+// 应用常量、默认设置与预设选项（文案用 i18n key 表示，见 ui/i18n.js）
 
 export const DEFAULT_SETTINGS = Object.freeze({
   format: 'auto',
@@ -24,22 +24,22 @@ export const DEFAULT_SETTINGS = Object.freeze({
 });
 
 export const SIZE_PRESETS = [
-  { value: 'original', label: '原始尺寸' },
-  { value: '1280', label: '标清 · 1280px' },
-  { value: '1920', label: '高清 · 1920px' },
-  { value: '2560', label: '2K · 2560px' },
-  { value: '3840', label: '4K · 3840px' },
+  { value: 'original', labelKey: 'size.original' },
+  { value: '1280', labelKey: 'size.1280' },
+  { value: '1920', labelKey: 'size.1920' },
+  { value: '2560', labelKey: 'size.2560' },
+  { value: '3840', labelKey: 'size.3840' },
 ];
 
 export const SCENARIOS = [
-  { value: 'wechat-avatar', label: '微信头像（方形）', width: 132, height: 132 },
-  { value: 'wechat-cover', label: '公众号封面', width: 900, height: 383 },
-  { value: 'redbook', label: '小红书 3:4', width: 1080, height: 1440 },
-  { value: 'redbook-square', label: '小红书 1:1', width: 1080, height: 1080 },
-  { value: 'taobao', label: '淘宝主图 1:1', width: 800, height: 800 },
-  { value: 'video-cover', label: '视频封面 16:9', width: 1920, height: 1080 },
-  { value: 'id-1in', label: '一寸证件照', width: 295, height: 413 },
-  { value: 'id-2in', label: '二寸证件照', width: 413, height: 579 },
+  { value: 'wechat-avatar', labelKey: 'scenario.wechat-avatar', width: 132, height: 132 },
+  { value: 'wechat-cover', labelKey: 'scenario.wechat-cover', width: 900, height: 383 },
+  { value: 'redbook', labelKey: 'scenario.redbook', width: 1080, height: 1440 },
+  { value: 'redbook-square', labelKey: 'scenario.redbook-square', width: 1080, height: 1080 },
+  { value: 'taobao', labelKey: 'scenario.taobao', width: 800, height: 800 },
+  { value: 'video-cover', labelKey: 'scenario.video-cover', width: 1920, height: 1080 },
+  { value: 'id-1in', labelKey: 'scenario.id-1in', width: 295, height: 413 },
+  { value: 'id-2in', labelKey: 'scenario.id-2in', width: 413, height: 579 },
 ];
 
 export function findScenario(id) {
@@ -47,26 +47,26 @@ export function findScenario(id) {
 }
 
 export const ROTATIONS = [
-  { value: 0, label: '不旋转' },
-  { value: 90, label: '顺时针 90°' },
-  { value: 180, label: '旋转 180°' },
-  { value: 270, label: '逆时针 90°' },
+  { value: 0, labelKey: 'rotate.0' },
+  { value: 90, labelKey: 'rotate.90' },
+  { value: 180, labelKey: 'rotate.180' },
+  { value: 270, labelKey: 'rotate.270' },
 ];
 
 export const FLIPS = [
-  { value: 'none', label: '不翻转' },
-  { value: 'horizontal', label: '水平翻转' },
-  { value: 'vertical', label: '垂直翻转' },
+  { value: 'none', labelKey: 'flip.none' },
+  { value: 'horizontal', labelKey: 'flip.horizontal' },
+  { value: 'vertical', labelKey: 'flip.vertical' },
 ];
 
 export const WATERMARK_POSITIONS = [
-  { value: 'top-left', label: '左上' },
-  { value: 'top-center', label: '上中' },
-  { value: 'top-right', label: '右上' },
-  { value: 'middle-left', label: '左中' },
-  { value: 'middle-center', label: '居中' },
-  { value: 'middle-right', label: '右中' },
-  { value: 'bottom-left', label: '左下' },
-  { value: 'bottom-center', label: '下中' },
-  { value: 'bottom-right', label: '右下' },
+  { value: 'top-left', labelKey: 'wm.top-left' },
+  { value: 'top-center', labelKey: 'wm.top-center' },
+  { value: 'top-right', labelKey: 'wm.top-right' },
+  { value: 'middle-left', labelKey: 'wm.middle-left' },
+  { value: 'middle-center', labelKey: 'wm.middle-center' },
+  { value: 'middle-right', labelKey: 'wm.middle-right' },
+  { value: 'bottom-left', labelKey: 'wm.bottom-left' },
+  { value: 'bottom-center', labelKey: 'wm.bottom-center' },
+  { value: 'bottom-right', labelKey: 'wm.bottom-right' },
 ];

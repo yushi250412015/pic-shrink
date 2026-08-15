@@ -1,5 +1,6 @@
 import { SIZE_PRESETS, SCENARIOS, ROTATIONS, FLIPS, WATERMARK_POSITIONS } from '../config.js';
 import { detectEncodableFormats } from './capabilities.js';
+import { t } from './i18n.js';
 
 const SELECT_SOURCES = {
   preset: SIZE_PRESETS,
@@ -26,7 +27,7 @@ export function initSettingsPanel(root, store, onRerun) {
 
   for (const [key, options] of Object.entries(SELECT_SOURCES)) {
     const select = root.querySelector(`[data-setting="${key}"]`);
-    select.innerHTML = options.map((o) => `<option value="${o.value}">${o.label}</option>`).join('');
+    select.innerHTML = options.map((o) => `<option value="${o.value}">${t(o.labelKey)}</option>`).join('');
   }
 
   function readControl(control) {
@@ -84,7 +85,7 @@ export function initSettingsPanel(root, store, onRerun) {
     const avifOption = root.querySelector('[data-setting="format"] option[value="avif"]');
     if (avifOption && !supported.includes('avif')) {
       avifOption.disabled = true;
-      avifOption.textContent = 'AVIF（当前浏览器不支持）';
+      avifOption.textContent = t('avif.unsupported');
     }
   });
 }

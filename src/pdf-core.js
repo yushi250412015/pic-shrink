@@ -1,6 +1,7 @@
-// PDF 处理核心：合并 / 拆分 / 提取页 / 优化压缩 / 页面操作。运行在 Web Worker 中。
+// PDF 处理核心：合并 / 拆分 / 提取页 / 优化压缩 / 页面操作 / 图片转 PDF。运行在 Web Worker 中。
 import { PDFDocument, degrees } from 'pdf-lib';
 import { expandRanges, applyPageOperations } from './utils/pdf-pages.js';
+import { computePageSize, fitImageOnPage } from './utils/img2pdf.js';
 
 async function loadDoc(file) {
   const bytes = await file.arrayBuffer();
@@ -62,8 +63,7 @@ export async function optimizePdf(file) {
   return { blob: toBlob(bytes), pageCount: src.getPageCount() };
 }
 
-/**
- * 应用页面操作（旋转 / 删除 / 重排）后输出新 PDF。
+/** 应用页面操作（旋转 / 删除 / 重排）后输出新 PDF。
  * @param {File} file
  * @param {Array<{type: string, index: number, delta?: number}>} operations
  */
@@ -81,4 +81,42 @@ export async function rebuildPdf(file, operations = []) {
   });
   const bytes = await doc.save({ useObjectStreams: true });
   return { blob: toBlob(bytes), pageCount: doc.getPageCount() };
+}
+
+/** 非 JPEG 图片先经 canvas 重编码为 JPEG（透明区域铺白底） */
+async function rasterToJpegBytes(blob) {
+  const bitmap = await createImageBitmap(blob);
+  try {
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('当前环境不支持 OffscreenCanvas');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, bitmap.width, bitmap.height);
+    ctx.drawImage(bitmap, 0, 0);
+    const out = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.92 });
+    return new Uint8Array(await out.arrayBuffer());
+  } finally {
+    bitmap.close();
+  }
+}
+
+/**
+ * 把多张图片合并为一个 PDF（每图一页）。
+ * @param {Array<Blob|File>} files 图片
+ * @param {{mode?: 'original'|'a4'}} [options] 页面尺寸模式
+ */
+export async function imagesToPdf(files, { mode = 'a4' } = {}) {
+  const doc = await PDFDocument.create();
+  for (const file of files) {
+    const bytes =
+      file.type === 'image/jpeg' ? new Uint8Array(await file.arrayBuffer()) : await rasterToJpegBytes(file);
+    const jpg = await doc.embedJpg(bytes);
+    const dims = jpg.scale(1);
+    const pageSize = computePageSize(dims.width, dims.height, mode);
+    const page = doc.addPage([pageSize.width, pageSize.height]);
+    const rect = fitImageOnPage(dims.width, dims.height, pageSize.width, pageSize.height);
+    page.drawImage(jpg, { x: rect.x, y: rect.y, width: rect.width, height: rect.height });
+  }
+  const outBytes = await doc.save({ useObjectStreams: true });
+  return { blob: toBlob(outBytes), pageCount: doc.getPageCount() };
 }

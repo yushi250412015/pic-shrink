@@ -1,8 +1,16 @@
 // PDF Worker 入口：接收操作，返回结果或错误
-import { mergePdfs, splitPdf, extractPages, optimizePdf, rebuildPdf, getPdfInfo } from './pdf-core.js';
+import {
+  mergePdfs,
+  splitPdf,
+  extractPages,
+  optimizePdf,
+  rebuildPdf,
+  getPdfInfo,
+  imagesToPdf,
+} from './pdf-core.js';
 
 self.onmessage = async (event) => {
-  const { id, op, files, spec, operations } = event.data;
+  const { id, op, files, spec, operations, mode } = event.data;
   try {
     let result;
     if (op === 'merge') result = await mergePdfs(files);
@@ -11,6 +19,7 @@ self.onmessage = async (event) => {
     else if (op === 'optimize') result = await optimizePdf(files[0]);
     else if (op === 'rebuild') result = await rebuildPdf(files[0], operations);
     else if (op === 'info') result = await getPdfInfo(files[0]);
+    else if (op === 'img2pdf') result = await imagesToPdf(files, { mode });
     else throw new Error(`未知操作: ${op}`);
     self.postMessage({ id, ok: true, result });
   } catch (error) {

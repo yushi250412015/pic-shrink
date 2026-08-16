@@ -8,6 +8,7 @@ import { initStatsBar } from './ui/stats-bar.js';
 import { initToolbar } from './ui/toolbar.js';
 import { initPdfTool } from './ui/pdf-tool.js';
 import { initTheme } from './ui/theme.js';
+import { initSimpleMode } from './ui/simple-mode.js';
 import { initShortcuts } from './ui/shortcuts.js';
 import { applyTranslations, getLang, setLang } from './ui/i18n.js';
 import { readExif } from './exif.js';
@@ -59,6 +60,29 @@ langToggle.addEventListener('click', () => {
 
 // 深色 / 浅色主题
 initTheme(document.getElementById('theme-toggle'));
+
+// 极简模式：开启后隐藏高级设置，只留格式 + 质量/目标大小 + 场景
+let previousResizeMode = store.getSettings().resizeMode;
+initSimpleMode({
+  button: document.getElementById('simple-toggle'),
+  root: document.getElementById('settings-panel'),
+  onToggle: (simple) => {
+    const patch = {};
+    if (simple) {
+      if (store.getSettings().resizeMode !== 'scenario') {
+        previousResizeMode = store.getSettings().resizeMode;
+        patch.resizeMode = 'scenario';
+      }
+    } else if (
+      store.getSettings().resizeMode === 'scenario' &&
+      previousResizeMode &&
+      previousResizeMode !== 'scenario'
+    ) {
+      patch.resizeMode = previousResizeMode;
+    }
+    store.setSettings(patch); // 总是 emit，触发设置面板按极简模式重渲染
+  },
+});
 
 // 快捷键（Ctrl/Cmd+O、Delete、Esc）
 initShortcuts({ fileList });

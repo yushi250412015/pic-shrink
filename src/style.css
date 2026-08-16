@@ -160,6 +160,12 @@ input {
   border-color: var(--accent);
 }
 
+.lang-toggle.active {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
 /* ================= 上传区 ================= */
 
 .drop-zone {

@@ -1,5 +1,6 @@
 import { SIZE_PRESETS, SCENARIOS, ROTATIONS, FLIPS, WATERMARK_POSITIONS } from '../config.js';
 import { detectEncodableFormats } from './capabilities.js';
+import { isSimpleMode } from './simple-mode.js';
 import { t } from './i18n.js';
 
 const SELECT_SOURCES = {
@@ -9,6 +10,9 @@ const SELECT_SOURCES = {
   flip: FLIPS,
   watermarkPosition: WATERMARK_POSITIONS,
 };
+
+// 极简模式下仍显示的控制项：格式 + 压缩方式（质量/目标大小）+ 场景
+const SIMPLE_VISIBLE_KEYS = new Set(['format', 'strategy', 'quality', 'targetKb', 'scenario']);
 
 const NUMERIC_KEYS = new Set([
   'quality',
@@ -56,6 +60,16 @@ export function initSettingsPanel(root, store, onRerun) {
     }
     for (const field of root.querySelectorAll('[data-resize-field]')) {
       field.classList.toggle('hidden', field.dataset.resizeField !== settings.resizeMode);
+    }
+
+    // 极简模式：渲染时过滤，只留格式 / 质量目标 / 场景
+    const simple = isSimpleMode();
+    root.classList.toggle('simple-mode', simple);
+    for (const control of controls) {
+      const field = control.closest('.field');
+      if (!field) continue;
+      const hiddenInSimple = simple && !SIMPLE_VISIBLE_KEYS.has(control.dataset.setting);
+      field.classList.toggle('hidden', hiddenInSimple);
     }
 
     rerun.hidden = store.getState().items.size === 0;

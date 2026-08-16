@@ -2,6 +2,22 @@
 
 本文档记录项目的所有重要变更。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.2.0] - 2026-08-16
+
+### 新增
+
+- HEIC/HEIF 解码支持：iPhone 照片可直接拖入/选择，Worker 内用 heic2any 解码为 JPEG 后进入现有压缩管线（纯 JS，无 WASM，按需分包不常驻）
+- 批量证件照排版：一寸/二寸铺满 4×6 相纸（底色白/红/蓝、张数可调），网格计算纯函数化
+- PNG 优化策略：默认 / 有损（canvas 量化重编码）/ 无损（@jsquash/oxipng wasm 瘦身），wasm 失败优雅回退并在结果卡片提示
+- 图片转 PDF：多图合并每图一页，页面尺寸可选「原图尺寸 / A4 适配居中」，JPEG 直嵌、PNG/WebP 先转 JPEG
+- 极简模式：一键隐藏高级设置，只留「格式 + 质量/目标大小 + 场景」，localStorage 记忆
+- 自定义场景预设：场景下拉新增「我的预设」分组，可添加/删除尺寸模板（宽高 1-20000 校验）
+
+### 变更
+
+- 图片 Worker 切换为 ES 模块格式（`worker.format: 'es'`），支持 Worker 内动态 import 按需分包
+- 场景预设逻辑接入自定义预设（Worker 内通过 `custom:WxH` 自描述 value 解析，无需访问 localStorage）
+
 ## [1.1.0] - 2026-08-16
 
 ### 新增

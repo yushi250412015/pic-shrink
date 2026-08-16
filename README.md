@@ -26,8 +26,14 @@
 - **PWA 离线安装**：可安装到桌面，Service Worker 缓存后离线可用
 - **持久化统计**：累计处理张数、累计节省体积、使用天数
 - **快捷键**：Ctrl/Cmd+O 选择文件、Delete 删除选中、Esc 关闭弹窗
+- **HEIC/HEIF 解码**：iPhone 照片直接拖入，Worker 内解码为 JPEG 后压缩/转换
+- **证件照排版**：一寸/二寸按 4×6 相纸铺满网格（底色白/红/蓝、张数可调）一键出图
+- **PNG 优化**：默认 / 有损量化 / 无损（oxipng wasm）三档，仅输出 PNG 时生效
+- **图片转 PDF**：多图合并每图一页（原图尺寸 / A4 适配居中）
+- **极简模式**：一键隐藏高级设置，只留格式 + 质量/目标大小 + 场景
+- **自定义场景预设**：场景下拉「我的预设」分组，可增删尺寸模板
 - **中英双语**：界面可切换
-- **隐私优先**：Canvas / OffscreenCanvas / pdf-lib / gifsicle-wasm 全本地处理，零上传、零后端
+- **隐私优先**：Canvas / OffscreenCanvas / pdf-lib / gifsicle-wasm / heic2any / oxipng 全本地处理，零上传、零后端
 
 ## 快速开始
 
@@ -46,6 +52,8 @@ npm run preview  # 预览构建产物
 | 构建 | Vite |
 | 语言 | 原生 JavaScript（ES Modules，无框架） |
 | 图像处理 | createImageBitmap + OffscreenCanvas（Web Worker） |
+| HEIC 解码 | heic2any（纯 JS，按需分包，Worker 内运行） |
+| PNG 优化 | @jsquash/oxipng（Squoosh wasm，按需分包） |
 | PDF | pdf-lib（按需分包） |
 | GIF | gifsicle-wasm（自包含，打进图片 Worker） |
 | EXIF | exifr（按需分包） |
@@ -99,7 +107,7 @@ pic-shrink/
 不会。所有处理都在浏览器本地完成，代码完全开源可审计，断网也能使用。
 
 **支持哪些输入格式？**
-图片：JPG / PNG / WebP / GIF / BMP / AVIF / SVG（取决于浏览器解码能力）；PDF 工具支持 PDF。
+图片：JPG / PNG / WebP / GIF / BMP / AVIF / SVG / HEIC / HEIF（取决于浏览器解码能力；HEIC 由内置 heic2any 解码）；PDF 工具支持 PDF。
 
 **目标大小压缩对 PNG 有效吗？**
 PNG 是无损格式，无法通过质量参数压缩；目标大小策略仅对 JPEG / WebP / AVIF 生效。
@@ -111,8 +119,9 @@ PNG 是无损格式，无法通过质量参数压缩；目标大小策略仅对 
 
 - [x] PWA 离线安装
 - [x] 更强大的批量重命名规则（`{name}/{index}/{date}/{ext}` 模板）
+- [x] HEIC/HEIF 解码支持
+- [x] 证件照排版 / PNG 优化 / 图片转 PDF / 极简模式 / 自定义场景预设
 - [ ] 图片拼接 / 长图
-- [ ] HEIC/HEIF 解码支持
 - [ ] 扫描件增强（灰度、去阴影）
 
 ## License

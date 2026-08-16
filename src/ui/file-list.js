@@ -66,6 +66,10 @@ export function initFileList(root, store, pipeline) {
         ? `<div class="meta-row"><b>${t('list.gif.note')}</b></div>`
         : '';
 
+    const noteRow = result.note
+      ? `<div class="meta-row"><b>${t(result.note)}</b></div>`
+      : '';
+
     const cameraRow =
       item.exif && (item.exif.make || item.exif.model)
         ? `<div class="meta-row"><span>${t('list.exif.camera')}</span><b>${escapeHtml([item.exif.make, item.exif.model].filter(Boolean).join(' '))}</b></div>`
@@ -83,6 +87,7 @@ export function initFileList(root, store, pipeline) {
         <div class="meta">
           ${rows}
           ${gifNote}
+          ${noteRow}
           ${cameraRow}
           ${exifRow}
           <div class="meta-actions">

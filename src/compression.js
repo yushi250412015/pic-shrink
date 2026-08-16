@@ -17,6 +17,12 @@ import { resolveResize } from './utils/settings.js';
 import { findScenario } from './config.js';
 import { isHeicFile } from './utils/filetype.js';
 import { decodeHeicToJpeg } from './heic.js';
+import {
+  effectivePngStrategy,
+  quantizeChannel,
+  lossyChannelLevels,
+  oxipngOptions,
+} from './utils/png-opt.js';
 import gifsicle from 'gifsicle-wasm-browser';
 
 function drawSource(ctx, canvasSize, targetSize, bitmap, crop, rotate, flip) {
@@ -165,10 +171,25 @@ export async function compressImage(file, settings, itemCrop = null) {
   drawWatermark(ctx, canvasSize.width, canvasSize.height, settings);
   bitmap.close();
 
+  // 有损 PNG：先把像素量化（减少颜色数），再交给 canvas 编码，体积更小
+  if (effectivePngStrategy(format, settings.pngOpt) === 'lossy') {
+    const imageData = ctx.getImageData(0, 0, canvasSize.width, canvasSize.height);
+    const levels = lossyChannelLevels();
+    const data = imageData.data;
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = quantizeChannel(data[i], levels);
+      data[i + 1] = quantizeChannel(data[i + 1], levels);
+      data[i + 2] = quantizeChannel(data[i + 2], levels);
+      // 保留 alpha 通道不变，避免透明边缘出现锯齿
+    }
+    ctx.putImageData(imageData, 0, 0);
+  }
+
   const encode = (quality) => canvas.convertToBlob({ type: mimeFromFormat(format), quality });
 
   let blob;
   let quality = settings.quality;
+  let note;
 
   if (settings.strategy === 'target-size' && !isLosslessFormat(format)) {
     const targetBytes = Math.max(1, Number(settings.targetKb) || 1) * 1024;
@@ -179,6 +200,20 @@ export async function compressImage(file, settings, itemCrop = null) {
     blob = await encode(settings.quality);
   }
 
+  // 无损 PNG：用 oxipng wasm 瘦身；加载/执行失败时优雅回退默认编码
+  if (effectivePngStrategy(format, settings.pngOpt) === 'lossless') {
+    try {
+      const { optimise } = await import('@jsquash/oxipng');
+      const buffer = await blob.arrayBuffer();
+      const slim = await optimise(buffer, oxipngOptions());
+      if (slim && slim.byteLength > 0) {
+        blob = new Blob([slim], { type: 'image/png' });
+      }
+    } catch {
+      note = 'list.png.opt.fallback';
+    }
+  }
+
   return {
     blob,
     width: canvasSize.width,
@@ -187,5 +222,6 @@ export async function compressImage(file, settings, itemCrop = null) {
     originalWidth,
     originalHeight,
     quality,
+    note,
   };
 }

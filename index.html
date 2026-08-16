@@ -80,6 +80,16 @@
                 </select>
               </label>
 
+              <label class="field">
+                <span class="field-label" data-i18n="settings.pngOpt">PNG 优化</span>
+                <select data-setting="pngOpt">
+                  <option value="auto" data-i18n="settings.pngOpt.auto">默认</option>
+                  <option value="lossy" data-i18n="settings.pngOpt.lossy">有损（更小）</option>
+                  <option value="lossless" data-i18n="settings.pngOpt.lossless">无损（瘦身）</option>
+                </select>
+                <small class="field-note" data-i18n="settings.pngOpt.note">仅输出 PNG 时生效</small>
+              </label>
+
               <div class="field field-wide">
                 <span class="field-label" data-i18n="settings.strategy">压缩方式</span>
                 <div class="segmented">

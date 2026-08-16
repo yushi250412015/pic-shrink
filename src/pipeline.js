@@ -42,6 +42,7 @@ export class Pipeline {
         originalWidth: data.originalWidth,
         originalHeight: data.originalHeight,
         quality: data.quality,
+        note: data.note,
       });
     } else {
       this.store.setItemError(data.id, data.error || '处理失败');

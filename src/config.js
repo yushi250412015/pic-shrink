@@ -20,6 +20,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   watermarkSize: 5,
   watermarkColor: '#ffffff',
   watermarkOpacity: 80,
+  pngOpt: 'auto',
 });
 
 export const SIZE_PRESETS = [

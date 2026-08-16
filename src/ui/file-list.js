@@ -1,8 +1,10 @@
 import { formatBytes, calcSavedPercent } from '../utils/bytes.js';
 import { escapeHtml } from '../utils/dom.js';
+import { splitExtension } from '../utils/filename.js';
 import { outputNameFor, downloadBlob } from './download.js';
 import { openCropModal } from './crop-modal.js';
 import { openCompare } from './compare.js';
+import { openIdPhotoModal } from './idphoto-modal.js';
 import { t } from './i18n.js';
 
 export function initFileList(root, store, pipeline) {
@@ -86,6 +88,7 @@ export function initFileList(root, store, pipeline) {
           <div class="meta-actions">
             <button class="btn btn-primary" data-action="download" data-id="${item.id}" type="button">${t('list.download')}</button>
             <button class="btn btn-ghost" data-action="compare" data-id="${item.id}" type="button">${t('list.compare')}</button>
+            <button class="btn btn-ghost" data-action="idphoto" data-id="${item.id}" type="button">${t('list.idphoto')}</button>
             <button class="btn btn-ghost" data-action="remove" data-id="${item.id}" type="button">${t('list.remove')}</button>
           </div>
         </div>
@@ -178,6 +181,8 @@ export function initFileList(root, store, pipeline) {
       } else if (button.dataset.action === 'compare') {
         const entry = ensureUrls(item);
         if (entry) openCompare({ originalUrl: entry.original, outputUrl: entry.output });
+      } else if (button.dataset.action === 'idphoto') {
+        openIdPhotoModal(item.result.blob, splitExtension(item.file.name).base);
       } else if (button.dataset.action === 'remove') {
         releaseUrls(id);
         if (selectedId === id) selectedId = null;

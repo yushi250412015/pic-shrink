@@ -950,3 +950,24 @@ input {
   flex-wrap: wrap;
   margin-left: auto;
 }
+
+/* ================= 证件照排版弹窗 ================= */
+
+.idphoto-dialog {
+  width: min(92vw, 360px);
+  gap: 14px;
+}
+
+.idphoto-dialog .field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.idphoto-dialog select,
+.idphoto-dialog input[type='number'] {
+  padding: 9px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}

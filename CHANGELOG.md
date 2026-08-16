@@ -2,6 +2,12 @@
 
 本文档记录项目的所有重要变更。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [Unreleased]
+
+### 新增
+
+- **长截图拼接**：把多张已完成图片按顺序拼成一张长图（纵向上下 / 横向左右），可选间距与对齐（起点 / 居中 / 终点），PNG 无损输出；纯函数 `utils/stitch.js`（`computeStitchLayout`）+ Worker 合成（`stitch-core.js` / `stitch-worker.js`）+ 工具栏「拼接长图」入口（`ui/stitch-modal.js`），≥2 张完成图时显示。单测 7 项（总 120 用例）。
+
 ## [1.2.0] - 2026-08-16
 
 ### 新增

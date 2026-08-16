@@ -1,11 +1,16 @@
-import { SIZE_PRESETS, SCENARIOS, ROTATIONS, FLIPS, WATERMARK_POSITIONS } from '../config.js';
+import { SIZE_PRESETS, ROTATIONS, FLIPS, WATERMARK_POSITIONS } from '../config.js';
 import { detectEncodableFormats } from './capabilities.js';
 import { isSimpleMode } from './simple-mode.js';
+import { parseCustomScenarioId, customScenarioValue } from '../utils/scenarios.js';
+import {
+  renderScenarioOptions,
+  removeCustomScenario,
+  openAddScenarioModal,
+} from './custom-scenarios.js';
 import { t } from './i18n.js';
 
 const SELECT_SOURCES = {
   preset: SIZE_PRESETS,
-  scenario: SCENARIOS,
   rotate: ROTATIONS,
   flip: FLIPS,
   watermarkPosition: WATERMARK_POSITIONS,
@@ -28,11 +33,15 @@ export function initSettingsPanel(root, store, onRerun) {
   const controls = [...root.querySelectorAll('[data-setting]')];
   const rerun = root.querySelector('[data-rerun]');
   const qualityLabel = root.querySelector('[data-quality-label]');
+  const scenarioSelect = root.querySelector('[data-setting="scenario"]');
+  const addScenarioBtn = root.querySelector('[data-scenario-add]');
+  const removeScenarioBtn = root.querySelector('[data-scenario-remove]');
 
   for (const [key, options] of Object.entries(SELECT_SOURCES)) {
     const select = root.querySelector(`[data-setting="${key}"]`);
     select.innerHTML = options.map((o) => `<option value="${o.value}">${t(o.labelKey)}</option>`).join('');
   }
+  if (scenarioSelect) renderScenarioOptions(scenarioSelect);
 
   function readControl(control) {
     const key = control.dataset.setting;
@@ -72,6 +81,10 @@ export function initSettingsPanel(root, store, onRerun) {
       field.classList.toggle('hidden', hiddenInSimple);
     }
 
+    if (removeScenarioBtn) {
+      removeScenarioBtn.hidden = !parseCustomScenarioId(settings.scenario);
+    }
+
     rerun.hidden = store.getState().items.size === 0;
   }
 
@@ -90,6 +103,21 @@ export function initSettingsPanel(root, store, onRerun) {
         : 'input';
     control.addEventListener(eventType, onChange);
   }
+
+  addScenarioBtn?.addEventListener('click', () => {
+    openAddScenarioModal((added) => {
+      renderScenarioOptions(scenarioSelect);
+      store.setSettings({ scenario: customScenarioValue(added.width, added.height) });
+    });
+  });
+
+  removeScenarioBtn?.addEventListener('click', () => {
+    const custom = parseCustomScenarioId(store.getSettings().scenario);
+    if (!custom) return;
+    removeCustomScenario(custom.width, custom.height);
+    renderScenarioOptions(scenarioSelect);
+    store.setSettings({ scenario: 'wechat-avatar' });
+  });
 
   rerun.addEventListener('click', onRerun);
   store.subscribe(syncUI);

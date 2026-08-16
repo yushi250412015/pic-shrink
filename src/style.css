@@ -998,3 +998,17 @@ input {
 .img2pdf-modes .radio input {
   accent-color: var(--accent);
 }
+
+/* ================= 自定义场景预设 ================= */
+
+.scenario-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.scenario-size-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}

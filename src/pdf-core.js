@@ -1,6 +1,6 @@
-// PDF 处理核心：合并 / 拆分 / 提取页 / 优化压缩。运行在 Web Worker 中。
-import { PDFDocument } from 'pdf-lib';
-import { expandRanges } from './utils/pdf-pages.js';
+// PDF 处理核心：合并 / 拆分 / 提取页 / 优化压缩 / 页面操作。运行在 Web Worker 中。
+import { PDFDocument, degrees } from 'pdf-lib';
+import { expandRanges, applyPageOperations } from './utils/pdf-pages.js';
 
 async function loadDoc(file) {
   const bytes = await file.arrayBuffer();
@@ -49,9 +49,36 @@ export async function extractPages(file, spec) {
   return { blob: toBlob(bytes), pageCount: doc.getPageCount() };
 }
 
+/** 读取 PDF 基本信息（页数等），用于页面操作 UI */
+export async function getPdfInfo(file) {
+  const src = await loadDoc(file);
+  return { pageCount: src.getPageCount() };
+}
+
 /** 重存并启用对象流，减小体积（优化效果有限，视文件而定） */
 export async function optimizePdf(file) {
   const src = await loadDoc(file);
   const bytes = await src.save({ useObjectStreams: true });
   return { blob: toBlob(bytes), pageCount: src.getPageCount() };
+}
+
+/**
+ * 应用页面操作（旋转 / 删除 / 重排）后输出新 PDF。
+ * @param {File} file
+ * @param {Array<{type: string, index: number, delta?: number}>} operations
+ */
+export async function rebuildPdf(file, operations = []) {
+  const src = await loadDoc(file);
+  const plan = applyPageOperations(src.getPageCount(), operations);
+  if (!plan.length) throw new Error('不能删除所有页面');
+
+  const doc = await PDFDocument.create();
+  const copied = await doc.copyPages(src, plan.map((p) => p.originalIndex));
+  copied.forEach((page, i) => {
+    const angle = plan[i].angle;
+    if (angle) page.setRotation(degrees(angle));
+    doc.addPage(page);
+  });
+  const bytes = await doc.save({ useObjectStreams: true });
+  return { blob: toBlob(bytes), pageCount: doc.getPageCount() };
 }

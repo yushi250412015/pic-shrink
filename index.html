@@ -13,6 +13,22 @@
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%97%9C%EF%B8%8F%3C/text%3E%3C/svg%3E"
     />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <script>
+      // 在 CSS 应用前解析主题，避免首屏闪烁
+      (function () {
+        try {
+          var pref = localStorage.getItem('ps-theme') || 'system';
+          var dark =
+            pref === 'dark' ||
+            (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) {
+          document.documentElement.dataset.theme = 'light';
+        }
+      })();
+    </script>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -29,6 +45,7 @@
           <span class="privacy-badge" data-i18n="privacy.badge" data-i18n-title="privacy.title"
             >🔒 图片不出本地</span
           >
+          <button id="theme-toggle" class="lang-toggle" type="button" data-i18n-title="theme.toggle" title="切换深色 / 浅色">🌙</button>
           <button id="lang-toggle" class="lang-toggle" type="button">EN</button>
         </div>
       </header>
@@ -141,17 +158,13 @@
                 >
               </label>
 
-              <label class="field">
-                <span class="field-label" data-i18n="settings.prefix">输出文件名前缀</span>
-                <input type="text" data-i18n-placeholder="settings.prefix.ph" placeholder="例如 pic_" data-setting="prefix" />
-              </label>
-              <label class="field">
-                <span class="field-label" data-i18n="settings.suffix">输出文件名后缀</span>
+              <label class="field field-wide">
+                <span class="field-label" data-i18n="settings.rename">输出文件名模板</span>
                 <input
                   type="text"
-                  data-i18n-placeholder="settings.suffix.ph"
-                  placeholder="例如 _compressed"
-                  data-setting="suffix"
+                  data-i18n-placeholder="settings.rename.ph"
+                  placeholder="默认 {name}，支持 {ext} {index} {index:0>2} {date}"
+                  data-setting="renameTemplate"
                 />
               </label>
 
@@ -185,6 +198,7 @@
           <section id="stats" class="stats panel" hidden>
             <div class="panel-title" data-i18n="stats.title">总体情况</div>
             <div data-stats-body class="stats-grid"></div>
+            <div data-lifetime class="lifetime"></div>
           </section>
 
           <section id="list-section">
@@ -222,6 +236,15 @@
             <small class="field-note" data-i18n="pdf.note">所有操作都在浏览器本地完成，PDF 不会上传到服务器</small>
           </section>
 
+          <section class="panel" data-pdf-pages hidden>
+            <div class="panel-title" data-i18n="pdf.pages.title">页面操作</div>
+            <p class="field-note" data-i18n="pdf.pages.note">左旋 / 删除 / 上下移动页面，然后生成新 PDF</p>
+            <ul data-pdf-page-list class="pdf-page-list"></ul>
+            <button class="btn btn-primary" data-pdf-pages-apply type="button" data-i18n="pdf.pages.apply" style="margin-top: 12px">
+              生成新 PDF
+            </button>
+          </section>
+
           <div data-pdf-empty class="empty-state" data-i18n="pdf.empty">还没有 PDF，从上面拖几个进来试试</div>
           <ul data-pdf-list class="file-list"></ul>
           <div class="pdf-status" data-pdf-status hidden></div>
@@ -230,6 +253,11 @@
 
       <footer class="site-footer">
         <p data-i18n="footer.note">完全在浏览器本地运行，不上传任何数据 · 开源免费（MIT）</p>
+        <p class="shortcuts-hint">
+          <span data-i18n="shortcuts.title">快捷键</span>：<span data-i18n="shortcuts.hint"
+            >Ctrl/Cmd+O 选择文件 · Delete 删除选中 · Esc 关闭弹窗</span
+          >
+        </p>
         <p>
           <a href="https://github.com/yushi250412015/pic-shrink" target="_blank" rel="noopener noreferrer" data-i18n="footer.repo"
             >GitHub 仓库</a

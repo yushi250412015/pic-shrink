@@ -7,6 +7,8 @@ import { initFileList } from './ui/file-list.js';
 import { initStatsBar } from './ui/stats-bar.js';
 import { initToolbar } from './ui/toolbar.js';
 import { initPdfTool } from './ui/pdf-tool.js';
+import { initTheme } from './ui/theme.js';
+import { initShortcuts } from './ui/shortcuts.js';
 import { applyTranslations, getLang, setLang } from './ui/i18n.js';
 import { readExif } from './exif.js';
 
@@ -26,7 +28,7 @@ initDropZone(document.getElementById('drop-zone'), (files) => {
 });
 
 initSettingsPanel(document.getElementById('settings-panel'), store, () => pipeline.rerun());
-initFileList(document.getElementById('list-section'), store, pipeline);
+const fileList = initFileList(document.getElementById('list-section'), store, pipeline);
 initStatsBar(document.getElementById('stats'), store);
 initToolbar(document.getElementById('toolbar'), store);
 
@@ -54,5 +56,20 @@ langToggle.addEventListener('click', () => {
   location.reload();
 });
 
+// 深色 / 浅色主题
+initTheme(document.getElementById('theme-toggle'));
+
+// 快捷键（Ctrl/Cmd+O、Delete、Esc）
+initShortcuts({ fileList });
+
 // 应用静态文案翻译
 applyTranslations(document.body);
+
+// Service Worker：仅在构建产物（非 dev）注册，避免开发时缓存干扰
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {
+      // 注册失败（如不支持）静默忽略
+    });
+  });
+}

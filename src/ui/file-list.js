@@ -2,6 +2,7 @@ import { formatBytes, calcSavedPercent } from '../utils/bytes.js';
 import { escapeHtml } from '../utils/dom.js';
 import { outputNameFor, downloadBlob } from './download.js';
 import { openCropModal } from './crop-modal.js';
+import { openCompare } from './compare.js';
 import { t } from './i18n.js';
 
 export function initFileList(root, store, pipeline) {
@@ -9,6 +10,7 @@ export function initFileList(root, store, pipeline) {
   const emptyState = root.querySelector('[data-empty-state]');
   const urls = new Map(); // id -> { original, output }
   let activePreview = null;
+  let selectedId = null;
 
   function ensureUrls(item) {
     let entry = urls.get(item.id);
@@ -83,6 +85,7 @@ export function initFileList(root, store, pipeline) {
           ${exifRow}
           <div class="meta-actions">
             <button class="btn btn-primary" data-action="download" data-id="${item.id}" type="button">${t('list.download')}</button>
+            <button class="btn btn-ghost" data-action="compare" data-id="${item.id}" type="button">${t('list.compare')}</button>
             <button class="btn btn-ghost" data-action="remove" data-id="${item.id}" type="button">${t('list.remove')}</button>
           </div>
         </div>
@@ -90,6 +93,7 @@ export function initFileList(root, store, pipeline) {
   }
 
   function renderItem(item) {
+    const selected = item.id === selectedId ? ' is-selected' : '';
     const cropLabel = item.crop ? t('list.crop.adjust') : t('list.crop');
     const head = `
       <div class="item-head">
@@ -101,11 +105,11 @@ export function initFileList(root, store, pipeline) {
         </div>
       </div>`;
 
-    if (item.status === 'done') return `<li class="file-item" id="item-${item.id}">${head}${doneBody(item)}</li>`;
+    if (item.status === 'done') return `<li class="file-item${selected}" data-id="${item.id}" id="item-${item.id}">${head}${doneBody(item)}</li>`;
     if (item.status === 'error') {
-      return `<li class="file-item" id="item-${item.id}">${head}<div class="error-box">⚠️ ${escapeHtml(item.error)}</div></li>`;
+      return `<li class="file-item${selected}" data-id="${item.id}" id="item-${item.id}">${head}<div class="error-box">⚠️ ${escapeHtml(item.error)}</div></li>`;
     }
-    return `<li class="file-item" id="item-${item.id}">${head}</li>`;
+    return `<li class="file-item${selected}" data-id="${item.id}" id="item-${item.id}">${head}</li>`;
   }
 
   function render() {
@@ -127,33 +131,64 @@ export function initFileList(root, store, pipeline) {
     list.innerHTML = entries.map(renderItem).join('');
   }
 
-  list.addEventListener('click', (event) => {
-    const button = event.target.closest('[data-action]');
-    if (!button) return;
-    const id = Number(button.dataset.id);
-    const item = store.getState().items.get(id);
-    if (!item) return;
+  function selectItem(id) {
+    selectedId = id;
+    for (const li of list.querySelectorAll('.file-item')) {
+      li.classList.toggle('is-selected', Number(li.dataset.id) === id);
+    }
+  }
 
-    if (button.dataset.action === 'crop') {
-      openCropModal(item.file, {
-        onConfirm: (crop) => {
-          store.setItemCrop(id, crop);
-          pipeline.rerunItem(id);
-        },
-        onClear: () => {
-          store.setItemCrop(id, null);
-          pipeline.rerunItem(id);
-        },
-      });
+  function removeSelected() {
+    if (selectedId == null) return;
+    const item = store.getState().items.get(selectedId);
+    if (!item) {
+      selectedId = null;
       return;
     }
-    if (button.dataset.action === 'download') {
-      const name = outputNameFor(item.file, item.result.format, store.getSettings());
-      downloadBlob(item.result.blob, name);
-    } else if (button.dataset.action === 'remove') {
-      releaseUrls(id);
-      store.removeItem(id);
+    releaseUrls(selectedId);
+    selectedId = null;
+    store.removeItem(item.id);
+  }
+
+  list.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-action]');
+    if (button) {
+      const id = Number(button.dataset.id);
+      const item = store.getState().items.get(id);
+      if (!item) return;
+
+      if (button.dataset.action === 'crop') {
+        openCropModal(item.file, {
+          onConfirm: (crop) => {
+            store.setItemCrop(id, crop);
+            pipeline.rerunItem(id);
+          },
+          onClear: () => {
+            store.setItemCrop(id, null);
+            pipeline.rerunItem(id);
+          },
+        });
+        return;
+      }
+      if (button.dataset.action === 'download') {
+        const ids = [...store.getState().items.keys()];
+        const index = Math.max(0, ids.indexOf(id));
+        const name = outputNameFor(item.file, item.result.format, store.getSettings(), { index });
+        downloadBlob(item.result.blob, name);
+      } else if (button.dataset.action === 'compare') {
+        const entry = ensureUrls(item);
+        if (entry) openCompare({ originalUrl: entry.original, outputUrl: entry.output });
+      } else if (button.dataset.action === 'remove') {
+        releaseUrls(id);
+        if (selectedId === id) selectedId = null;
+        store.removeItem(id);
+      }
+      return;
     }
+
+    // 点击非按钮区域：选中该文件项；点击空白处取消选中
+    const li = event.target.closest('.file-item');
+    selectItem(li ? Number(li.dataset.id) : null);
   });
 
   list.addEventListener('pointerdown', (event) => {
@@ -178,4 +213,6 @@ export function initFileList(root, store, pipeline) {
 
   store.subscribe(render);
   render();
+
+  return { removeSelected };
 }

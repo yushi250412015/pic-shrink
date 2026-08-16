@@ -1,6 +1,7 @@
 import { escapeHtml } from '../utils/dom.js';
 import { formatBytes } from '../utils/bytes.js';
 import { splitExtension } from '../utils/filename.js';
+import { applyPageOperations } from '../utils/pdf-pages.js';
 import { downloadBlob } from './download.js';
 import { t } from './i18n.js';
 
@@ -11,10 +12,14 @@ export function initPdfTool(root) {
   const emptyState = root.querySelector('[data-pdf-empty]');
   const rangeInput = root.querySelector('[data-pdf-range]');
   const statusEl = root.querySelector('[data-pdf-status]');
+  const pagesPanel = root.querySelector('[data-pdf-pages]');
+  const pagesList = root.querySelector('[data-pdf-page-list]');
+  const pagesApply = root.querySelector('[data-pdf-pages-apply]');
 
   const files = [];
   const callbacks = new Map();
   let nextId = 1;
+  let pagesInfo = null; // { file, pageCount, ops: [] }（仅单文件时可用）
 
   const worker = new Worker(new URL('../pdf-worker.js', import.meta.url), { type: 'module' });
   worker.onmessage = (event) => {
@@ -43,12 +48,14 @@ export function initPdfTool(root) {
 
   function setBusy(busy) {
     for (const btn of root.querySelectorAll('[data-pdf-action]')) btn.disabled = busy;
+    if (pagesApply) pagesApply.disabled = busy;
   }
 
   function render() {
     if (!files.length) {
       list.innerHTML = '';
       emptyState.hidden = false;
+      syncPagesPanel();
       return;
     }
     emptyState.hidden = true;
@@ -66,6 +73,79 @@ export function initPdfTool(root) {
       </li>`,
       )
       .join('');
+    syncPagesPanel();
+  }
+
+  function renderPages() {
+    if (!pagesInfo || !pagesList) return;
+    const plan = applyPageOperations(pagesInfo.pageCount, pagesInfo.ops);
+    if (!plan.length) {
+      pagesList.innerHTML = `<li class="pdf-page-row"><span>${t('pdf.pages.noPages')}</span></li>`;
+      return;
+    }
+    pagesList.innerHTML = plan
+      .map((page, i) => {
+        const rotations = page.angle === 0 ? 0 : (360 - page.angle) / 90;
+        const upDisabled = i === 0 ? 'disabled' : '';
+        const downDisabled = i === plan.length - 1 ? 'disabled' : '';
+        return `
+        <li class="pdf-page-row">
+          <span class="pdf-page-num">${t('pdf.page', { n: page.originalIndex + 1 })}</span>
+          ${rotations ? `<span class="status status-neutral">↺ ${rotations}</span>` : ''}
+          <div class="pdf-page-actions">
+            <button class="btn btn-ghost btn-small" data-pages="move" data-i="${i}" data-delta="-1" ${upDisabled} type="button">${t('pdf.moveUp')}</button>
+            <button class="btn btn-ghost btn-small" data-pages="move" data-i="${i}" data-delta="1" ${downDisabled} type="button">${t('pdf.moveDown')}</button>
+            <button class="btn btn-ghost btn-small" data-pages="rotate" data-i="${i}" type="button">${t('pdf.rotateLeft')}</button>
+            <button class="btn btn-ghost btn-small" data-pages="delete" data-i="${i}" type="button">${t('pdf.deletePage')}</button>
+          </div>
+        </li>`;
+      })
+      .join('');
+  }
+
+  async function syncPagesPanel() {
+    if (!pagesPanel) return;
+    if (files.length !== 1) {
+      pagesInfo = null;
+      pagesPanel.hidden = true;
+      pagesList.innerHTML = '';
+      return;
+    }
+    const file = files[0];
+    if (pagesInfo && pagesInfo.file === file) {
+      pagesPanel.hidden = false;
+      renderPages();
+      return;
+    }
+    pagesPanel.hidden = false;
+    pagesList.innerHTML = `<li class="pdf-page-row"><span>${t('pdf.pages.processing')}</span></li>`;
+    try {
+      const { pageCount } = await run('info', { files: [file] });
+      if (files.length === 1 && files[0] === file) {
+        pagesInfo = { file, pageCount, ops: [] };
+        renderPages();
+      }
+    } catch (e) {
+      pagesList.innerHTML = `<li class="pdf-page-row"><span>${t('pdf.pages.fail')}${escapeHtml(e.message)}</span></li>`;
+    }
+  }
+
+  async function doRebuild() {
+    if (!pagesInfo) {
+      setStatus(t('pdf.pages.needOne'));
+      return;
+    }
+    setBusy(true);
+    setStatus(t('pdf.pages.processing'));
+    try {
+      const { blob } = await run('rebuild', { files: [pagesInfo.file], operations: pagesInfo.ops });
+      downloadBlob(blob, `${stripName(pagesInfo.file.name)}-edited.pdf`);
+      setStatus(t('pdf.pages.done'));
+    } catch (e) {
+      setStatus(t('pdf.pages.fail') + e.message);
+    } finally {
+      setBusy(false);
+    }
   }
 
   function addFiles(incoming) {
@@ -210,6 +290,20 @@ export function initPdfTool(root) {
     if (removeBtn) {
       files.splice(Number(removeBtn.dataset.pdfRemove), 1);
       render();
+      return;
+    }
+    const pageBtn = e.target.closest('[data-pages]');
+    if (pageBtn && pagesInfo) {
+      const i = Number(pageBtn.dataset.i);
+      const kind = pageBtn.dataset.pages;
+      if (kind === 'move') pagesInfo.ops.push({ type: 'move', index: i, delta: Number(pageBtn.dataset.delta) });
+      else if (kind === 'rotate') pagesInfo.ops.push({ type: 'rotate', index: i });
+      else if (kind === 'delete') pagesInfo.ops.push({ type: 'delete', index: i });
+      renderPages();
+      return;
+    }
+    if (e.target.closest('[data-pdf-pages-apply]')) {
+      doRebuild();
     }
   });
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { expandRanges } from '../src/utils/pdf-pages.js';
+import { expandRanges, applyPageOperations } from '../src/utils/pdf-pages.js';
 
 describe('expandRanges', () => {
   it('解析逗号与区间', () => {
@@ -24,5 +24,46 @@ describe('expandRanges', () => {
 
   it('去重且升序', () => {
     expect(expandRanges('3,1,2-3', 5)).toEqual([0, 1, 2]);
+  });
+});
+
+describe('applyPageOperations', () => {
+  it('左旋 90° 累计角度为 270（≡ -90）', () => {
+    const plan = applyPageOperations(3, [{ type: 'rotate', index: 0 }]);
+    expect(plan[0]).toEqual({ originalIndex: 0, angle: 270 });
+    expect(plan[1]).toEqual({ originalIndex: 1, angle: 0 });
+    // 连续左旋两次 = 180°
+    expect(applyPageOperations(1, [
+      { type: 'rotate', index: 0 },
+      { type: 'rotate', index: 0 },
+    ])[0].angle).toBe(180);
+  });
+
+  it('删除页面后其余页按原顺序前移', () => {
+    const plan = applyPageOperations(3, [{ type: 'delete', index: 1 }]);
+    expect(plan.map((p) => p.originalIndex)).toEqual([0, 2]);
+  });
+
+  it('上移 / 下移重排页面顺序', () => {
+    expect(applyPageOperations(3, [{ type: 'move', index: 0, delta: 1 }]).map((p) => p.originalIndex)).toEqual([1, 0, 2]);
+    expect(applyPageOperations(3, [{ type: 'move', index: 2, delta: -1 }]).map((p) => p.originalIndex)).toEqual([0, 2, 1]);
+  });
+
+  it('旋转 + 删除 + 移动按顺序叠加，旋转跟随原页', () => {
+    const plan = applyPageOperations(4, [
+      { type: 'rotate', index: 1 },
+      { type: 'delete', index: 0 },
+      { type: 'move', index: 0, delta: 1 },
+    ]);
+    expect(plan).toEqual([
+      { originalIndex: 2, angle: 0 },
+      { originalIndex: 1, angle: 270 },
+      { originalIndex: 3, angle: 0 },
+    ]);
+  });
+
+  it('非法 index 的操作被忽略', () => {
+    expect(applyPageOperations(2, [{ type: 'delete', index: 5 }]).map((p) => p.originalIndex)).toEqual([0, 1]);
+    expect(applyPageOperations(2, [{ type: 'rotate', index: -1 }])[0].angle).toBe(0);
   });
 });

@@ -14,8 +14,7 @@ export const DEFAULT_SETTINGS = Object.freeze({
   rotate: 0,
   flip: 'none',
   background: '#ffffff',
-  prefix: '',
-  suffix: '',
+  renameTemplate: '{name}',
   watermarkText: '',
   watermarkPosition: 'bottom-right',
   watermarkSize: 5,
@@ -40,6 +39,14 @@ export const SCENARIOS = [
   { value: 'video-cover', labelKey: 'scenario.video-cover', width: 1920, height: 1080 },
   { value: 'id-1in', labelKey: 'scenario.id-1in', width: 295, height: 413 },
   { value: 'id-2in', labelKey: 'scenario.id-2in', width: 413, height: 579 },
+  { value: 'weibo', labelKey: 'scenario.weibo', width: 980, height: 560 },
+  { value: 'bilibili', labelKey: 'scenario.bilibili', width: 1146, height: 717 },
+  { value: 'zhihu', labelKey: 'scenario.zhihu', width: 1600, height: 900 },
+  { value: 'douyin', labelKey: 'scenario.douyin', width: 1080, height: 1920 },
+  { value: 'github-avatar', labelKey: 'scenario.github-avatar', width: 460, height: 460 },
+  { value: 'qq-avatar', labelKey: 'scenario.qq-avatar', width: 640, height: 640 },
+  { value: 'taobao-detail', labelKey: 'scenario.taobao-detail', width: 750, height: 1000 },
+  { value: 'gzh-card', labelKey: 'scenario.gzh-card', width: 900, height: 500 },
 ];
 
 export function findScenario(id) {

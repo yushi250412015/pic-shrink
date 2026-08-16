@@ -29,3 +29,36 @@ export function expandRanges(spec, totalPages) {
 
   return [...indices].sort((x, y) => x - y).map((p) => p - 1);
 }
+
+/**
+ * 根据一串页面操作计算最终页面顺序与每页累计旋转角度。
+ * operations 元素形如 { type, index, delta? }：
+ *   type 'rotate'：index 页左旋 90°（累计角度 -90 ≡ 270）
+ *   type 'delete'：删除 index 页
+ *   type 'move'：index 页上移（delta < 0）或下移（delta > 0）一位
+ * 返回 [{ originalIndex, angle }]，angle ∈ {0, 90, 180, 270}。
+ * 非法 index 的操作被忽略，保证越界安全。
+ */
+export function applyPageOperations(pageCount, operations = []) {
+  const pages = Array.from({ length: pageCount }, (_, i) => ({ originalIndex: i, angle: 0 }));
+
+  for (const op of operations) {
+    if (!op || typeof op !== 'object') continue;
+    const { type, index } = op;
+    if (!Number.isInteger(index) || index < 0 || index >= pages.length) continue;
+
+    if (type === 'rotate') {
+      pages[index].angle = (pages[index].angle + 270) % 360;
+    } else if (type === 'delete') {
+      pages.splice(index, 1);
+    } else if (type === 'move') {
+      const delta = op.delta > 0 ? 1 : -1;
+      const target = clamp(index + delta, 0, pages.length - 1);
+      if (target === index) continue;
+      const [page] = pages.splice(index, 1);
+      pages.splice(target, 0, page);
+    }
+  }
+
+  return pages.map((page) => ({ ...page }));
+}

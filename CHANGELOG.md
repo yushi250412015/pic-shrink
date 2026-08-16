@@ -2,6 +2,23 @@
 
 本文档记录项目的所有重要变更。格式遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.0.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
+## [1.1.0] - 2026-08-16
+
+### 新增
+
+- PWA 离线安装：manifest + Service Worker（stale-while-revalidate），可安装到桌面、离线可用
+- 暗色模式：跟随系统 / 手动切换，localStorage 记忆
+- 处理前后对比滑杆：每张结果卡片可打开 before/after 对比
+- 批量重命名模板：`{name}` `{ext}` `{index}` `{index:0>2}` `{index1}` `{date}` 占位符，替代简单前后缀
+- PDF 页面操作增强：左旋 90° / 删除 / 上移下移，重建并导出新 PDF
+- 场景预设扩充至 16 个：微博 / B站 / 知乎 / 抖音 / GitHub 头像 / QQ 头像 / 淘宝详情 / 公众号卡片
+- 持久化统计：累计处理张数、累计节省体积、跨天使用天数
+- 快捷键：Ctrl/Cmd+O 选择文件、Delete 删除选中、Esc 关闭弹窗
+
+### 变更
+
+- 输出文件名前缀 / 后缀升级为模板输入框（默认 `{name}`，扩展名始终与输出格式一致）
+
 ## [1.0.0] - 2026-08-15
 
 首个正式版本，功能完整。

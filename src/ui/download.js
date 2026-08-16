@@ -1,4 +1,5 @@
-import { renderOutputName, makeUnique } from '../utils/filename.js';
+import { splitExtension, replaceExtension, makeUnique } from '../utils/filename.js';
+import { applyRenameTemplate } from '../utils/rename.js';
 
 /** 触发浏览器下载（object URL 延迟回收） */
 export function triggerDownload(url, filename) {
@@ -15,12 +16,12 @@ export function downloadBlob(blob, filename) {
   triggerDownload(URL.createObjectURL(blob), filename);
 }
 
-/** 按设置的前缀/后缀生成输出文件名 */
-export function outputNameFor(file, format, settings) {
-  return renderOutputName(file.name, format, {
-    prefix: settings.prefix,
-    suffix: settings.suffix,
-  });
+/** 按重命名模板生成输出文件名；扩展名始终与输出格式一致 */
+export function outputNameFor(file, format, settings, { index = 0, date = new Date() } = {}) {
+  const { base, ext } = splitExtension(file.name);
+  const template = settings.renameTemplate || '{name}';
+  const rendered = applyRenameTemplate(template, { name: base, ext, index, date });
+  return replaceExtension(rendered, format);
 }
 
 /** 把所有完成项打包成 ZIP 下载；返回是否成功打包 */
@@ -28,11 +29,12 @@ export async function downloadAllAsZip(items, settings) {
   const { default: JSZip } = await import('jszip');
   const zip = new JSZip();
   const used = new Set();
+  const date = new Date();
   let count = 0;
 
   for (const item of items.values()) {
     if (item.status !== 'done' || !item.result) continue;
-    const name = makeUnique(outputNameFor(item.file, item.result.format, settings), used);
+    const name = makeUnique(outputNameFor(item.file, item.result.format, settings, { index: count, date }), used);
     zip.file(name, item.result.blob);
     count += 1;
   }

@@ -22,26 +22,24 @@
   --checker-b: #f7f9fc;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0d1117;
-    --bg-grad-1: #101623;
-    --bg-grad-2: #16102a;
-    --panel: #161b26;
-    --text: #e6e9ef;
-    --text-2: #8b95a8;
-    --border: #262f3f;
-    --accent: #818cf8;
-    --accent-strong: #6366f1;
-    --accent-soft: #1e2740;
-    --good: #34d399;
-    --good-soft: #0c2f24;
-    --bad: #f87171;
-    --bad-soft: #3a1518;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
-    --checker-a: #232b3a;
-    --checker-b: #1b222e;
-  }
+[data-theme='dark'] {
+  --bg: #0d1117;
+  --bg-grad-1: #101623;
+  --bg-grad-2: #16102a;
+  --panel: #161b26;
+  --text: #e6e9ef;
+  --text-2: #8b95a8;
+  --border: #262f3f;
+  --accent: #818cf8;
+  --accent-strong: #6366f1;
+  --accent-soft: #1e2740;
+  --good: #34d399;
+  --good-soft: #0c2f24;
+  --bad: #f87171;
+  --bad-soft: #3a1518;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+  --checker-a: #232b3a;
+  --checker-b: #1b222e;
 }
 
 * {
@@ -797,4 +795,158 @@ input {
   margin-top: 14px;
   font-size: 13px;
   color: var(--text-2);
+}
+
+/* ================= 前后对比滑杆 ================= */
+
+.compare-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.compare-dialog {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  max-width: 94vw;
+  max-height: 94vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compare-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+}
+
+.compare-stage {
+  position: relative;
+  width: min(88vw, 800px);
+  height: min(64vh, 560px);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: repeating-conic-gradient(var(--checker-a) 0% 25%, var(--checker-b) 0% 50%) 0 0 /
+    16px 16px;
+  touch-action: none;
+  cursor: ew-resize;
+}
+
+.compare-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.compare-output {
+  clip-path: inset(0 0 0 var(--compare-pos, 50%));
+}
+
+.compare-slider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--compare-pos, 50%);
+  width: 2px;
+  margin-left: -1px;
+  background: #ffffff;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+  cursor: ew-resize;
+}
+
+.compare-slider::after {
+  content: '⇔';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #1f2937;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.compare-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+/* ================= 累计统计 / 选中态 / 快捷键 ================= */
+
+.lifetime {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  font-size: 13px;
+  color: var(--text-2);
+  font-weight: 600;
+}
+
+.file-item.is-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+.shortcuts-hint {
+  opacity: 0.8;
+}
+
+/* ================= PDF 页面操作 ================= */
+
+.pdf-page-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pdf-page-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.pdf-page-num {
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 72px;
+}
+
+.pdf-page-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-left: auto;
 }

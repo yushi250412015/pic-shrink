@@ -9,6 +9,7 @@ import {
   filterOutBuiltin,
 } from '../utils/scenarios.js';
 import { SCENARIOS } from '../config.js';
+import { SUBMISSION_SIZES, SUBMISSION_PLATFORMS, submissionSizesFor } from '../utils/submission-sizes.js';
 
 const STORAGE_KEY = 'ps-custom-scenarios';
 
@@ -51,16 +52,28 @@ export function renderScenarioOptions(select) {
   const builtin = SCENARIOS.map(
     (o) => `<option value="${o.value}">${t(o.labelKey)}</option>`,
   ).join('');
-  const custom = filterOutBuiltin(loadCustomScenarios(), SCENARIOS);
+  const submissionGroups = SUBMISSION_PLATFORMS.map((p) => {
+    const opts = submissionSizesFor(p.value)
+      .map(
+        (o) => `<option value="${o.id}" title="${o.width}×${o.height}">${t(o.labelKey)}</option>`,
+      )
+      .join('');
+    return opts
+      ? `<optgroup label="${escapeHtml(`${t('scenario.submission.group')} · ${t(p.labelKey)}`)}">${opts}</optgroup>`
+      : '';
+  }).join('');
+  const custom = filterOutBuiltin(loadCustomScenarios(), [...SCENARIOS, ...SUBMISSION_SIZES]);
   const customHtml = custom
     .map(
       (s) =>
         `<option value="${customScenarioValue(s.width, s.height)}">${escapeHtml(s.name)}</option>`,
     )
     .join('');
-  select.innerHTML = custom.length
-    ? `${builtin}<optgroup label="${escapeHtml(t('scenario.custom.group'))}">${customHtml}</optgroup>`
-    : builtin;
+  const groups = [builtin, submissionGroups];
+  if (custom.length) {
+    groups.push(`<optgroup label="${escapeHtml(t('scenario.custom.group'))}">${customHtml}</optgroup>`);
+  }
+  select.innerHTML = groups.join('');
 }
 
 /**

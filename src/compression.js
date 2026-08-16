@@ -15,6 +15,7 @@ import { findQualityForSize } from './utils/quality.js';
 import { computeWatermarkPosition } from './utils/watermark.js';
 import { resolveResize } from './utils/settings.js';
 import { findScenario } from './config.js';
+import { findSubmissionSize } from './utils/submission-sizes.js';
 import { isHeicFile } from './utils/filetype.js';
 import { decodeHeicToJpeg } from './heic.js';
 import { parseCustomScenarioId } from './utils/scenarios.js';
@@ -150,7 +151,7 @@ export async function compressImage(file, settings, itemCrop = null) {
   let targetSize;
   const scenario =
     settings.resizeMode === 'scenario'
-      ? parseCustomScenarioId(settings.scenario) || findScenario(settings.scenario)
+      ? parseCustomScenarioId(settings.scenario) || findScenario(settings.scenario) || findSubmissionSize(settings.scenario)
       : null;
   if (scenario) {
     const aspect = aspectCropRect(baseCrop.sw, baseCrop.sh, scenario.width, scenario.height);

@@ -15,6 +15,8 @@ import { findQualityForSize } from './utils/quality.js';
 import { computeWatermarkPosition } from './utils/watermark.js';
 import { resolveResize } from './utils/settings.js';
 import { findScenario } from './config.js';
+import { isHeicFile } from './utils/filetype.js';
+import { decodeHeicToJpeg } from './heic.js';
 import gifsicle from 'gifsicle-wasm-browser';
 
 function drawSource(ctx, canvasSize, targetSize, bitmap, crop, rotate, flip) {
@@ -108,11 +110,17 @@ function drawWatermark(ctx, width, height, settings) {
  *   originalWidth: number, originalHeight: number, quality: number}>}
  */
 export async function compressImage(file, settings, itemCrop = null) {
-  const format = resolveFormat(file.type, settings.format);
+  // HEIC/HEIF：先解码为 JPEG，再进入常规图片管线（解码在 Worker 内完成）
+  let sourceFile = file;
+  if (isHeicFile(file)) {
+    sourceFile = await decodeHeicToJpeg(file);
+  }
+
+  const format = resolveFormat(sourceFile.type, settings.format);
 
   let bitmap;
   try {
-    bitmap = await createImageBitmap(file);
+    bitmap = await createImageBitmap(sourceFile);
   } catch {
     throw new Error('无法解码该图片（浏览器可能不支持此格式）');
   }
@@ -121,9 +129,9 @@ export async function compressImage(file, settings, itemCrop = null) {
   const originalHeight = bitmap.height;
 
   // GIF：用 gifsicle 处理（压缩/裁剪/缩放），保留动画帧
-  if (file.type === 'image/gif' && format === 'gif') {
+  if (sourceFile.type === 'image/gif' && format === 'gif') {
     bitmap.close();
-    return processGif(file, settings, itemCrop, originalWidth, originalHeight);
+    return processGif(sourceFile, settings, itemCrop, originalWidth, originalHeight);
   }
 
   const baseCrop = itemCrop

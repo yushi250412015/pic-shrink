@@ -11,12 +11,13 @@ import { initTheme } from './ui/theme.js';
 import { initShortcuts } from './ui/shortcuts.js';
 import { applyTranslations, getLang, setLang } from './ui/i18n.js';
 import { readExif } from './exif.js';
+import { isImageInput } from './utils/filetype.js';
 
 const store = createStore(DEFAULT_SETTINGS);
 const pipeline = new Pipeline(store);
 
 initDropZone(document.getElementById('drop-zone'), (files) => {
-  const images = files.filter((file) => file.type && file.type.startsWith('image/'));
+  const images = files.filter(isImageInput);
   if (!images.length) return;
   const ids = store.addFiles(images);
   pipeline.run();

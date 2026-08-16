@@ -1,5 +1,7 @@
 // 上传区交互：点击选择、拖拽、粘贴、键盘操作
 
+import { isImageInput } from '../utils/filetype.js';
+
 export function initDropZone(container, onFiles) {
   const input = container.querySelector('[data-file-input]');
 
@@ -39,7 +41,7 @@ export function initDropZone(container, onFiles) {
   window.addEventListener('drop', (event) => event.preventDefault());
 
   window.addEventListener('paste', (event) => {
-    const files = [...(event.clipboardData?.files || [])].filter((f) => f.type.startsWith('image/'));
+    const files = [...(event.clipboardData?.files || [])].filter(isImageInput);
     if (files.length) onFiles(files);
   });
 }

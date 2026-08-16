@@ -204,6 +204,15 @@
                 <span class="field-label" data-i18n="settings.watermark.opacity">水印不透明度（%）</span>
                 <input type="number" min="0" max="100" value="80" data-setting="watermarkOpacity" />
               </label>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.metadataTitle">元数据标题（EXIF）</span>
+                <input type="text" data-setting="metadataTitle" />
+              </label>
+              <label class="field">
+                <span class="field-label" data-i18n="settings.metadataAuthor">元数据作者（EXIF）</span>
+                <input type="text" data-setting="metadataAuthor" />
+              </label>
+              <small class="field-note" data-i18n="settings.metadataNote">留空则不写入；仅 JPEG 输出支持（EXIF 标题/作者）</small>
             </div>
             <button data-rerun class="btn btn-ghost" hidden type="button" data-i18n="settings.rerun">
               按新设置重新转换全部

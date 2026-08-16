@@ -25,6 +25,7 @@ import {
   oxipngOptions,
 } from './utils/png-opt.js';
 import gifsicle from 'gifsicle-wasm-browser';
+import { embedJpegMetadataBlob } from './utils/metadata.js';
 
 function drawSource(ctx, canvasSize, targetSize, bitmap, crop, rotate, flip) {
   const { width: cw, height: ch } = canvasSize;
@@ -216,6 +217,15 @@ export async function compressImage(file, settings, itemCrop = null) {
     } catch {
       note = 'list.png.opt.fallback';
     }
+  }
+
+  // 元数据写入：标题/作者仅支持 JPEG（EXIF）；其余格式诚实跳过
+  if (format === 'jpeg') {
+    const withMeta = await embedJpegMetadataBlob(blob, {
+      title: settings.metadataTitle,
+      author: settings.metadataAuthor,
+    });
+    if (withMeta) blob = withMeta;
   }
 
   return {

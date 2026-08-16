@@ -6,7 +6,8 @@
 
 ### 新增
 
-- **长截图拼接**：把多张已完成图片按顺序拼成一张长图（纵向上下 / 横向左右），可选间距与对齐（起点 / 居中 / 终点），PNG 无损输出；纯函数 `utils/stitch.js`（`computeStitchLayout`）+ Worker 合成（`stitch-core.js` / `stitch-worker.js`）+ 工具栏「拼接长图」入口（`ui/stitch-modal.js`），≥2 张完成图时显示。单测 7 项（总 120 用例）。
+- **长截图拼接**：把多张已完成图片按顺序拼成一张长图（纵向上下 / 横向左右），可选间距与对齐（起点 / 居中 / 终点），PNG 无损输出；纯函数 `utils/stitch.js`（`computeStitchLayout`）+ Worker 合成（`stitch-core.js` / `stitch-worker.js`）+ 工具栏「拼接长图」入口（`ui/stitch-modal.js`），≥2 张完成图时显示。单测 7 项（总 126 用例）。
+- **元数据批量编辑（标题/作者）**：设置面板新增「元数据标题/作者」，JPEG 输出时把标题(ImageDescription)与作者(Artist)写入 EXIF（UTF-8 编码，非 ASCII 文本可正确保存）；纯函数 `utils/metadata.js` + 集成进压缩管线 `compression.js`；其余格式诚实跳过；新增依赖 `piexifjs`。单测 6 项。
 
 ## [1.2.0] - 2026-08-16
 

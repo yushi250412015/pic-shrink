@@ -21,6 +21,8 @@ export const DEFAULT_SETTINGS = Object.freeze({
   watermarkColor: '#ffffff',
   watermarkOpacity: 80,
   pngOpt: 'auto',
+  metadataTitle: '',
+  metadataAuthor: '',
 });
 
 export const SIZE_PRESETS = [
